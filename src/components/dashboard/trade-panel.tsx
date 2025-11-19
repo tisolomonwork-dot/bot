@@ -10,7 +10,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import {
   Form,
@@ -18,18 +17,11 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const tradeSchema = z.object({
   side: z.enum(["Buy", "Sell"]),
@@ -79,32 +71,30 @@ export function TradePanel() {
   const side = form.watch("side");
 
   return (
-    <Card>
+    <Card className="bg-card/70 backdrop-blur-sm">
       <CardHeader>
-        <CardTitle>Trade BTC/USDT</CardTitle>
-        <CardDescription>Place your market orders below.</CardDescription>
+        <CardTitle>Trade</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="side"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Side</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a side" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Buy">Long (Buy)</SelectItem>
-                      <SelectItem value="Sell">Short (Sell)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
+                  <FormControl>
+                    <Tabs
+                      defaultValue={field.value}
+                      onValueChange={field.onChange}
+                      className="grid grid-cols-2"
+                    >
+                      <TabsList className="w-full grid grid-cols-2">
+                        <TabsTrigger value="Buy" className="data-[state=active]:bg-positive/80 data-[state=active]:text-primary-foreground">Long</TabsTrigger>
+                        <TabsTrigger value="Sell" className="data-[state=active]:bg-negative/80 data-[state=active]:text-primary-foreground">Short</TabsTrigger>
+                      </TabsList>
+                    </Tabs>
+                  </FormControl>
                 </FormItem>
               )}
             />
@@ -118,44 +108,44 @@ export function TradePanel() {
                   <FormControl>
                     <Input type="number" step="0.001" {...field} />
                   </FormControl>
-                  <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="takeProfit"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Take Profit (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="e.g., 70000" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="takeProfit"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Take Profit</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="e.g., 70000" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
 
-            <FormField
-              control={form.control}
-              name="stopLoss"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Stop Loss (Optional)</FormLabel>
-                  <FormControl>
-                    <Input type="number" placeholder="e.g., 65000" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
+              <FormField
+                control={form.control}
+                name="stopLoss"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Stop Loss</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="e.g., 65000" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+            
             <Button
               type="submit"
+              size="lg"
               className={cn(
-                "w-full",
-                side === "Buy" ? "bg-positive hover:bg-positive/90" : "bg-negative hover:bg-negative/90"
+                "w-full text-lg font-semibold",
+                side === "Buy" ? "bg-positive hover:bg-positive/90 text-background" : "bg-negative hover:bg-negative/90 text-background"
               )}
               disabled={form.formState.isSubmitting}
             >

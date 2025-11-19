@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingUp } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -29,12 +29,15 @@ const chartConfig = {
 
 export function DetailedChart() {
   return (
-    <Card>
+    <Card className="bg-card/70 backdrop-blur-sm">
       <CardHeader>
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-center">
             <div>
-                <CardTitle>BTC/USD Chart</CardTitle>
-                <CardDescription>Detailed view of market trends</CardDescription>
+                <CardTitle>BTC/USD</CardTitle>
+                <CardDescription>
+                    <span className="text-3xl font-bold mr-2">$67,700.50</span>
+                    <span className="text-sm text-positive font-medium">+2.1%</span>
+                </CardDescription>
             </div>
             <Tabs defaultValue="1h">
                 <TabsList>
@@ -48,34 +51,37 @@ export function DetailedChart() {
         </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig} className="h-[300px] w-full">
+        <ChartContainer config={chartConfig} className="h-[400px] w-full">
           <AreaChart
             accessibilityLayer
             data={chartData}
             margin={{
-              left: 12,
+              left: 0,
               right: 12,
+              top: 10,
+              bottom: 0
             }}
           >
-            <CartesianGrid vertical={false} />
+            <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
             <XAxis
               dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => new Date(value).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
+              tickFormatter={(value) => new Date(value).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
             />
-            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+            <YAxis tickLine={false} axisLine={false} tickMargin={8} orientation="right" tickFormatter={(value) => `$${value/1000}k`} />
+            <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="line" labelFormatter={(label, payload) => new Date(label).toLocaleString()} />} />
             <defs>
               <linearGradient id="fillPrice" x1="0" y1="0" x2="0" y2="1">
                 <stop
                   offset="5%"
-                  stopColor="var(--color-price)"
+                  stopColor="hsl(var(--chart-1))"
                   stopOpacity={0.8}
                 />
                 <stop
                   offset="95%"
-                  stopColor="var(--color-price)"
+                  stopColor="hsl(var(--chart-1))"
                   stopOpacity={0.1}
                 />
               </linearGradient>
@@ -84,25 +90,14 @@ export function DetailedChart() {
               dataKey="close"
               type="natural"
               fill="url(#fillPrice)"
-              fillOpacity={0.4}
-              stroke="var(--color-price)"
+              stroke="hsl(var(--chart-1))"
+              strokeWidth={2}
               stackId="a"
+              dot={false}
             />
           </AreaChart>
         </ChartContainer>
       </CardContent>
-      <CardFooter>
-        <div className="flex w-full items-start gap-2 text-sm">
-          <div className="grid gap-2">
-            <div className="flex items-center gap-2 font-medium leading-none">
-              AI Interpretation: Market mood is <Badge variant="outline" className="ml-1 bg-green-500/10 text-green-700 border-green-500/20">Bullish</Badge>
-            </div>
-            <div className="flex items-center gap-2 leading-none text-muted-foreground">
-              Recent price action suggests strong upward momentum.
-            </div>
-          </div>
-        </div>
-      </CardFooter>
     </Card>
   );
 }
