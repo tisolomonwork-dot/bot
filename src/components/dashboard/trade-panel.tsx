@@ -49,14 +49,14 @@ export function TradePanel() {
         ...data,
       });
 
-      if (result.success) {
+      if (result.retCode === 0) {
         toast({
           title: "Order Placed Successfully",
           description: `Your ${data.side} order for ${data.qty} BTCUSDT has been placed.`,
         });
         form.reset();
       } else {
-        throw new Error("Failed to place order");
+        throw new Error(result.retMsg || "Failed to place order");
       }
     } catch (error) {
       toast({
@@ -71,7 +71,7 @@ export function TradePanel() {
   const side = form.watch("side");
 
   return (
-    <Card className="bg-card/70 backdrop-blur-sm">
+    <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
       <CardHeader>
         <CardTitle>Trade</CardTitle>
       </CardHeader>

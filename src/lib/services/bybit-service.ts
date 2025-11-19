@@ -47,6 +47,7 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
   const options: RequestInit = {
     method,
     headers,
+    cache: 'no-store' // Ensure fresh data
   };
 
   if (method === "POST" && body) {
@@ -57,7 +58,7 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
     const response = await fetch(url, options);
     const data = await response.json();
     if (data.retCode !== 0) {
-      console.error(`Bybit API Error for endpoint ${endpoint}:`, data.retMsg);
+      console.error(`Bybit API Error for endpoint ${endpoint}:`, data.retMsg, 'Params:', body);
     }
     return data;
   } catch (error) {
@@ -74,13 +75,14 @@ export async function getBalance() {
   return 0;
 }
 
-export async function getCurrentPrice(symbol: string = "BTCUSDT") {
-  const result = await bybitRequest("/v5/market/tickers", "GET", { category: "linear", symbol });
-  if (result.retCode === 0 && result.result?.list?.[0]) {
-    return parseFloat(result.result.list[0].lastPrice);
-  }
-  return 0;
+export async function getTickers(params: { category: 'linear' | 'spot', symbol: string }) {
+    const result = await bybitRequest('/v5/market/tickers', 'GET', params);
+    if (result.retCode === 0 && result.result?.list) {
+        return result.result.list;
+    }
+    return [];
 }
+
 
 export async function getPositions() {
   const result = await bybitRequest("/v5/position/list", "GET", {
@@ -142,27 +144,43 @@ export async function placeOrder(order: {
     const positionIdx = side === "Buy" ? 1 : 2;
       
     const orderParams: any = {
-    category: "linear",
-    symbol,
-    side,
-    orderType: "Market",
-    qty: qty.toString(),
-    positionIdx,
+      category: "linear",
+      symbol,
+      side,
+      orderType: "Market",
+      qty: qty.toString(),
+      positionIdx,
     };
     
     if (stopLoss) {
-    orderParams.stopLoss = stopLoss.toString();
+      orderParams.stopLoss = stopLoss.toString();
     }
     
     if (takeProfit) {
-    orderParams.takeProfit = takeProfit.toString();
+      orderParams.takeProfit = takeProfit.toString();
     }
     
-    const result = await bybitRequest("/v5/order/create", "POST", orderParams);
+    return await bybitRequest("/v5/order/create", "POST", orderParams);
+}
 
-    if (result.retCode === 0) {
-        return { success: true, orderId: result.result.orderId };
+export async function getKlines(params: {
+    category: 'linear' | 'spot';
+    symbol: string;
+    interval: '1' | '3' | '5' | '15' | '30' | '60' | '120' | '240' | '360' | '720' | 'D' | 'W' | 'M';
+    start?: number;
+    end?: number;
+    limit?: number;
+}) {
+    const result = await bybitRequest('/v5/market/kline', 'GET', params);
+    if (result.retCode === 0 && result.result?.list) {
+        return result.result.list.map((k: any) => ({
+            date: new Date(parseInt(k[0])).toISOString(),
+            open: parseFloat(k[1]),
+            high: parseFloat(k[2]),
+            low: parseFloat(k[3]),
+            close: parseFloat(k[4]),
+            volume: parseFloat(k[5]),
+        })).reverse();
     }
-    
-    throw new Error(result.retMsg || "Failed to place order");
+    return [];
 }

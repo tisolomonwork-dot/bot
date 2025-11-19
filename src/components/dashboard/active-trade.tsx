@@ -9,7 +9,7 @@ export async function ActiveTrade() {
 
   if (!btcPosition) {
     return (
-      <Card className="lg:col-span-3 bg-card/70 backdrop-blur-sm">
+      <Card className="lg:col-span-3 bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
         <CardHeader>
             <CardTitle>Active BTCUSDT Trade</CardTitle>
             <CardDescription>Your current open position for Bitcoin.</CardDescription>
@@ -24,7 +24,7 @@ export async function ActiveTrade() {
   const pnl = parseFloat(btcPosition.unrealisedPnl);
 
   return (
-    <Card className="lg:col-span-3 bg-card/70 backdrop-blur-sm">
+    <Card className="lg:col-span-3 bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
         <CardHeader>
             <CardTitle>Active BTCUSDT Trade</CardTitle>
             <CardDescription>Your current open position for Bitcoin.</CardDescription>
