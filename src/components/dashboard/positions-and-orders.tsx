@@ -11,6 +11,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { getOpenOrders, getPositions } from "@/lib/services/bybit-service";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Suspense } from "react";
+import { Skeleton } from "../ui/skeleton";
 
 async function PositionsTable() {
   const positions = await getPositions();
@@ -124,7 +126,9 @@ export function PositionsAndOrders() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <PositionsTable />
+            <Suspense fallback={<Skeleton className="h-24" />}>
+              <PositionsTable />
+            </Suspense>
           </CardContent>
         </Card>
       </TabsContent>
@@ -137,7 +141,9 @@ export function PositionsAndOrders() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <OrdersTable />
+            <Suspense fallback={<Skeleton className="h-24" />}>
+              <OrdersTable />
+            </Suspense>
           </CardContent>
         </Card>
       </TabsContent>
