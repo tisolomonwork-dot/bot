@@ -15,22 +15,13 @@ import { Skeleton } from "../ui/skeleton";
 
 async function PortfolioValue() {
     const totalPortfolioValue = await getBalance();
-    const total24hChange = 2.15; // Placeholder
     return (
-        <>
-            <div className="text-4xl font-bold">
-                {totalPortfolioValue.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                })}
-            </div>
-            <div className="flex items-center text-xs text-muted-foreground">
-                <span className="flex items-center gap-1 text-positive font-medium">
-                    <ArrowUpRight className="h-4 w-4" /> +{total24hChange}%
-                </span>
-                <span className="ml-1">in the last 24 hours</span>
-            </div>
-        </>
+        <div className="flex h-9 w-full items-center justify-end rounded-lg border border-dashed bg-card pl-8 pr-4 font-mono text-sm font-medium tabular-nums shadow-sm">
+            {totalPortfolioValue.toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+            })}
+        </div>
     )
 }
 
@@ -44,7 +35,7 @@ export function TotalPortfolio() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Suspense fallback={<Skeleton className="h-12 w-48" />}>
+        <Suspense fallback={<Skeleton className="h-9 w-32" />}>
             <PortfolioValue />
         </Suspense>
       </CardContent>
