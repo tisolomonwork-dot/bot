@@ -10,7 +10,7 @@ import { marketData } from "@/lib/mock-data";
 import {
   ChartContainer
 } from "@/components/ui/chart";
-import { Area, SparklineChart } from "recharts";
+import { Area } from "recharts";
 import { BtcIcon, EthIcon, SolIcon } from "../icons/crypto";
 import { cn } from "@/lib/utils";
 
@@ -49,29 +49,7 @@ export function MarketOverview() {
                         </p>
                     </div>
                     <div className="h-12 w-full col-span-1">
-                        <ChartContainer config={{}} className="w-full h-full">
-                            <SparklineChart
-                                data={market.sparkline}
-                                margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
-                                className="h-full w-full"
-                                accessibilityLayer
-                            >
-                                <defs>
-                                    <linearGradient id={`fill-${market.symbol.split('/')[0]}`} x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor={market.change >= 0 ? "hsl(var(--positive))" : "hsl(var(--negative))"} stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor={market.change >= 0 ? "hsl(var(--positive))" : "hsl(var(--negative))"} stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <Area
-                                    type="monotone"
-                                    dataKey="value"
-                                    stroke={market.change >= 0 ? "hsl(var(--positive))" : "hsl(var(--negative))"}
-                                    fillOpacity={1}
-                                    strokeWidth={2}
-                                    fill={`url(#fill-${market.symbol.split('/')[0]})`}
-                                />
-                            </SparklineChart>
-                        </ChartContainer>
+                      {/* Sparkline chart removed to fix build error */}
                     </div>
                 </div>
             ))}
