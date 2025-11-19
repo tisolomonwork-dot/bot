@@ -7,13 +7,10 @@ import {
 } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { marketData } from "@/lib/mock-data";
-import { AreaChart, SparkLineChart } from "lucide-react";
 import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
+  ChartContainer
 } from "@/components/ui/chart";
-import { Area, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Area, SparklineChart } from "recharts";
 import { BtcIcon, EthIcon, SolIcon } from "../icons/crypto";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +50,7 @@ export function MarketOverview() {
                     </div>
                     <div className="h-12 w-full col-span-1">
                         <ChartContainer config={{}} className="w-full h-full">
-                            <SparkLineChart
+                            <SparklineChart
                                 data={market.sparkline}
                                 margin={{ top: 5, right: 5, bottom: 5, left: 5 }}
                                 className="h-full w-full"
@@ -73,7 +70,7 @@ export function MarketOverview() {
                                     strokeWidth={2}
                                     fill={`url(#fill-${market.symbol.split('/')[0]})`}
                                 />
-                            </SparkLineChart>
+                            </SparklineChart>
                         </ChartContainer>
                     </div>
                 </div>

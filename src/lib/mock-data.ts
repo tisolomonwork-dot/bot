@@ -28,7 +28,6 @@ export const assets: Asset[] = [
   {
     id: 'sol', name: 'Solana', symbol: 'SOL', balance: 150, value: 21000.00, change: -3.2, exchange: 'Gemini', allocation: 15
   },
-_More assets here
   {
     id: 'usdt', name: 'Tether', symbol: 'USDT', balance: 10000, value: 10000.00, change: 0.0, exchange: 'Bybit', allocation: 10
   },
