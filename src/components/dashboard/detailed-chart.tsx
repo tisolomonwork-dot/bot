@@ -28,7 +28,7 @@ const chartConfig = {
   },
 };
 
-type KlineInterval = '1' | '15' | '60' | '240' | 'D';
+type KlineInterval = '1' | '15' | '30' | '60' | '240' | 'D';
 
 type KlineData = {
     date: string;
@@ -88,6 +88,7 @@ export function DetailedChart() {
             <Tabs defaultValue={interval} onValueChange={(value) => setInterval(value as KlineInterval)}>
                 <TabsList>
                     <TabsTrigger value="15">15m</TabsTrigger>
+                    <TabsTrigger value="30">30m</TabsTrigger>
                     <TabsTrigger value="60">1h</TabsTrigger>
                     <TabsTrigger value="240">4h</TabsTrigger>
                     <TabsTrigger value="D">1d</TabsTrigger>
