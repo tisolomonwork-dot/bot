@@ -11,7 +11,7 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const AiAnswerTradingQuestionsInputSchema = z.object({
-  question: z.string().describe('The trading-related question to be answered.'),
+  question: z.string().describe('The trading-related question to be answered, potentially including user context like open positions.'),
 });
 export type AiAnswerTradingQuestionsInput = z.infer<typeof AiAnswerTradingQuestionsInputSchema>;
 
@@ -28,7 +28,10 @@ const prompt = ai.definePrompt({
   name: 'aiAnswerTradingQuestionsPrompt',
   input: {schema: AiAnswerTradingQuestionsInputSchema},
   output: {schema: AiAnswerTradingQuestionsOutputSchema},
-  prompt: `You are an AI trading assistant that answers user questions regarding market trends, portfolio adjustments, and strategy evaluations.
+  prompt: `You are an AI trading assistant. Your role is to provide concise, insightful answers to user questions regarding market trends, portfolio adjustments, and strategy evaluations.
+
+  When answering, take into account the user's trading context if it is provided.
+
   Answer the following question:
   {{question}}`,
 });
