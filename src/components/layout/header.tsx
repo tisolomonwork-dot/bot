@@ -12,8 +12,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { totalPortfolioValue } from "@/lib/mock-data";
+import { getBalance } from "@/lib/services/bybit-service";
 import { Breadcrumbs } from "./breadcrumbs";
+import { Suspense } from "react";
+import { Skeleton } from "../ui/skeleton";
+
+async function PortfolioValue() {
+    const totalPortfolioValue = await getBalance();
+    return (
+        <div className="flex h-9 w-full items-center justify-end rounded-lg border border-dashed bg-card pl-8 pr-4 font-mono text-sm font-medium tabular-nums shadow-sm">
+            {totalPortfolioValue.toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+            })}
+        </div>
+    )
+}
 
 export function Header() {
   return (
@@ -24,12 +38,9 @@ export function Header() {
         <div className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground">
           <DollarSign className="h-4 w-4" />
         </div>
-        <div className="flex h-9 w-full items-center justify-end rounded-lg border border-dashed bg-card pl-8 pr-4 font-mono text-sm font-medium tabular-nums shadow-sm">
-          {totalPortfolioValue.toLocaleString("en-US", {
-            style: "currency",
-            currency: "USD",
-          })}
-        </div>
+        <Suspense fallback={<Skeleton className="h-9 w-32" />}>
+            <PortfolioValue />
+        </Suspense>
       </div>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

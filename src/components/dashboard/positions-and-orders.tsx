@@ -8,9 +8,103 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { positions, openOrders } from "@/lib/mock-data";
+import { getOpenOrders, getPositions } from "@/lib/services/bybit-service";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+
+async function PositionsTable() {
+  const positions = await getPositions();
+  
+  if (!positions || positions.length === 0) {
+    return <p className="text-sm text-muted-foreground">No open positions.</p>
+  }
+
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Symbol</TableHead>
+          <TableHead>Side</TableHead>
+          <TableHead className="text-right">Size</TableHead>
+          <TableHead className="text-right">Entry Price</TableHead>
+          <TableHead className="text-right">PNL (unrealized)</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {positions.map((pos: any) => (
+          <TableRow key={pos.symbol + pos.positionIdx}>
+            <TableCell className="font-medium">{pos.symbol}</TableCell>
+            <TableCell>
+                <Badge variant={pos.side === 'Buy' ? 'default' : 'destructive'} className={cn(pos.side === 'Buy' ? 'bg-positive hover:bg-positive/80' : 'bg-negative hover:bg-negative/80')}>
+                    {pos.side}
+                </Badge>
+            </TableCell>
+            <TableCell className="text-right">{pos.size}</TableCell>
+            <TableCell className="text-right">
+              {parseFloat(pos.avgPrice).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}
+            </TableCell>
+            <TableCell
+              className={cn(
+                "text-right font-medium",
+                parseFloat(pos.unrealisedPnl) >= 0 ? "text-positive" : "text-negative"
+              )}
+            >
+              {parseFloat(pos.unrealisedPnl).toLocaleString("en-US", {
+                style: "currency",
+                currency: "USD",
+              })}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  )
+}
+
+async function OrdersTable() {
+    const openOrders = await getOpenOrders();
+    if (!openOrders || openOrders.length === 0) {
+        return <p className="text-sm text-muted-foreground">No open orders.</p>
+    }
+    return (
+        <Table>
+            <TableHeader>
+            <TableRow>
+                <TableHead>Symbol</TableHead>
+                <TableHead>Side</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead className="text-right">Status</TableHead>
+            </TableRow>
+            </TableHeader>
+            <TableBody>
+            {openOrders.map((order : any) => (
+                <TableRow key={order.orderId}>
+                <TableCell className="font-medium">{order.symbol}</TableCell>
+                    <TableCell>
+                    <Badge variant={order.side === 'Buy' ? 'default' : 'destructive'} className={cn(order.side === 'Buy' ? 'bg-positive hover:bg-positive/80' : 'bg-negative hover:bg-negative/80')}>
+                        {order.side}
+                    </Badge>
+                </TableCell>
+                <TableCell>{order.orderType}</TableCell>
+                <TableCell className="text-right">
+                    {parseFloat(order.price).toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                    })}
+                </TableCell>
+                <TableCell className="text-right">
+                    <Badge variant="outline">{order.orderStatus}</Badge>
+                </TableCell>
+                </TableRow>
+            ))}
+            </TableBody>
+        </Table>
+    )
+}
 
 export function PositionsAndOrders() {
   return (
@@ -30,41 +124,7 @@ export function PositionsAndOrders() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead className="text-right">Size</TableHead>
-                  <TableHead className="text-right">Entry Price</TableHead>
-                  <TableHead className="text-right">PNL</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {positions.map((pos) => (
-                  <TableRow key={pos.symbol}>
-                    <TableCell className="font-medium">{pos.symbol}</TableCell>
-                    <TableCell className="text-right">{pos.size}</TableCell>
-                    <TableCell className="text-right">
-                      {pos.entryPrice.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      })}
-                    </TableCell>
-                    <TableCell
-                      className={cn(
-                        "text-right font-medium",
-                        pos.pnl >= 0 ? "text-positive" : "text-negative"
-                      )}
-                    >
-                      {pos.pnl.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      })} ({pos.pnlPercent.toFixed(2)}%)
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <PositionsTable />
           </CardContent>
         </Card>
       </TabsContent>
@@ -77,39 +137,7 @@ export function PositionsAndOrders() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead>Side</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead className="text-right">Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {openOrders.map((order) => (
-                  <TableRow key={order.symbol}>
-                    <TableCell className="font-medium">{order.symbol}</TableCell>
-                     <TableCell>
-                      <Badge variant={order.side === 'Buy' ? 'default' : 'destructive'} className={cn(order.side === 'Buy' ? 'bg-positive hover:bg-positive/80' : 'bg-negative hover:bg-negative/80')}>
-                        {order.side}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>{order.type}</TableCell>
-                    <TableCell className="text-right">
-                      {order.price.toLocaleString("en-US", {
-                        style: "currency",
-                        currency: "USD",
-                      })}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Badge variant="outline">{order.status}</Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <OrdersTable />
           </CardContent>
         </Card>
       </TabsContent>

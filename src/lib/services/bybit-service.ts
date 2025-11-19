@@ -69,7 +69,7 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
 export async function getBalance() {
   const result = await bybitRequest("/v5/account/wallet-balance", "GET", { accountType: "UNIFIED" });
   if (result.retCode === 0 && result.result?.list?.[0]) {
-    return parseFloat(result.result.list[0].totalAvailableBalance || "0");
+    return parseFloat(result.result.list[0].totalWalletBalance || "0");
   }
   return 0;
 }
@@ -92,6 +92,24 @@ export async function getPositions() {
   }
   return [];
 }
+
+export async function getOpenOrders() {
+    try {
+      const result = await bybitRequest("/v5/order/realtime", "GET", { 
+        category: "linear",
+        settleCoin: "USDT",
+      });
+      
+      if (result.retCode === 0 && result.result?.list) {
+        return result.result.list;
+      }
+      return [];
+    } catch (error) {
+      console.error("Error fetching open orders:", error);
+      return [];
+    }
+}
+
 
 export async function getClosedTrades() {
     try {
