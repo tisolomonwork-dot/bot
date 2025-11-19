@@ -53,7 +53,7 @@ export function DetailedChart() {
                     category: 'linear',
                     symbol: 'BTCUSDT',
                     interval: interval,
-                    limit: 100,
+                    limit: 50,
                 }),
                 getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
             ]);
