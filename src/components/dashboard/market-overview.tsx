@@ -10,7 +10,6 @@ import { marketData } from "@/lib/mock-data";
 import {
   ChartContainer
 } from "@/components/ui/chart";
-import { Area } from "recharts";
 import { BtcIcon, EthIcon, SolIcon } from "../icons/crypto";
 import { cn } from "@/lib/utils";
 
