@@ -4,8 +4,31 @@ import { useUser } from '@/firebase/auth/use-user';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Skeleton } from '../ui/skeleton';
+import { Card, CardHeader, CardContent } from '../ui/card';
+
 
 const unprotectedRoutes = ['/'];
+
+function LoadingScreen() {
+    return (
+         <div className="flex min-h-screen items-center justify-center bg-background">
+            <div className="w-full max-w-sm space-y-4 p-4">
+                 <Card className="w-full max-w-sm">
+                    <CardHeader className="text-center">
+                        <div className="mx-auto mb-4 flex justify-center">
+                           <Skeleton className="h-12 w-12 rounded-full" />
+                        </div>
+                        <Skeleton className="h-6 w-3/4 mx-auto" />
+                        <Skeleton className="h-4 w-1/2 mx-auto mt-2" />
+                    </CardHeader>
+                    <CardContent>
+                        <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    )
+}
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
     const { user, loading } = useUser();
@@ -14,39 +37,41 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     const isUnprotected = unprotectedRoutes.includes(pathname);
 
     useEffect(() => {
-        // If not loading, not logged in, and trying to access a protected route
-        if (!loading && !user && !isUnprotected) {
-            router.push('/');
+        // If loading is finished
+        if (!loading) {
+            // If there is a user
+            if (user) {
+                // If they are on the login page, redirect them to the menu.
+                if (isUnprotected) {
+                    router.push('/menu');
+                }
+            } else {
+                // If there's no user and they are on a protected page, redirect to login.
+                if (!isUnprotected) {
+                    router.push('/');
+                }
+            }
         }
     }, [user, loading, router, pathname, isUnprotected]);
 
 
+    // While loading, show a full-page loading screen.
     if (loading) {
-        return (
-            <div className="flex min-h-screen w-full flex-col items-center justify-center">
-                <Skeleton className="h-10 w-full max-w-sm" />
-                <Skeleton className="h-40 w-full max-w-sm mt-4" />
-            </div>
-        );
-    }
-    
-    // If not logged in and on a protected route, return null to prevent rendering children.
-    // The useEffect above will handle the redirect.
-    if (!user && !isUnprotected) {
-        return null;
+        return <LoadingScreen />;
     }
 
-    // If logged in and on the login page, let the login page handle the redirect.
-    // This prevents a flash of content while redirecting.
+    // If loading is finished, and the logic in useEffect is running,
+    // we might need to show a loading screen to prevent content flashes.
     if (user && isUnprotected) {
-         return (
-            <div className="flex min-h-screen w-full flex-col items-center justify-center">
-                <Skeleton className="h-10 w-full max-w-sm" />
-                <Skeleton className="h-40 w-full max-w-sm mt-4" />
-            </div>
-        );
+         // User is logged in but still on the login page, waiting for redirect.
+        return <LoadingScreen />;
     }
 
-    // Otherwise, render the children
+    if (!user && !isUnprotected) {
+        // User is not logged in and on a protected page, waiting for redirect.
+        return <LoadingScreen />;
+    }
+
+    // If all checks pass, render the requested page.
     return <>{children}</>;
 }
