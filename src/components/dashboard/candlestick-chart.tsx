@@ -2,15 +2,12 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { createChart, type IChartApi, type ISeriesApi, type Time, type PriceLineOptions, type IPriceLine, LineStyle } from 'lightweight-charts';
+import { createChart, type IChartApi, type ISeriesApi, type Time, type IPriceLine, LineStyle } from 'lightweight-charts';
 import { getKlines, getTickers } from "@/lib/services/bybit-service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '@/lib/utils';
 import { TrendingUp } from 'lucide-react';
-
-type KlineInterval = '15' | '30' | '60' | '240' | 'D';
 
 interface CandlestickChartProps {
     takeProfit?: number;
@@ -22,7 +19,6 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartApiRef = useRef<IChartApi | null>(null);
     const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
-    const [interval, setInterval] = useState<KlineInterval>('60');
     const [loading, setLoading] = useState(true);
     const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
     const [tpLine, setTpLine] = useState<IPriceLine | null>(null);
@@ -37,6 +33,37 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         }
     }, []);
     
+    const fetchData = useCallback(async (series: ISeriesApi<'Candlestick'> | null) => {
+        setLoading(true);
+        const [klinesData, tickerData] = await Promise.all([
+            getKlines({
+                category: 'linear',
+                symbol: 'BTCUSDT',
+                interval: '30',
+                limit: 100,
+            }),
+            getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
+        ]);
+        
+        if (klinesData && series) {
+            const formattedData = klinesData.map(d => ({
+                time: (new Date(d.date).getTime() / 1000) as Time,
+                open: d.open,
+                high: d.high,
+                low: d.low,
+                close: d.close,
+            }));
+            series.setData(formattedData);
+            chartApiRef.current?.timeScale().fitContent();
+        }
+
+        if (tickerData.length > 0) {
+            setTicker(tickerData[0]);
+        }
+        
+        setLoading(false);
+    }, []);
+
     useEffect(() => {
         if (!chartContainerRef.current) return;
 
@@ -75,50 +102,16 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
 
         window.addEventListener('resize', handleResize);
         
-        fetchData(interval, series);
+        fetchData(series);
+        const dataInterval = setInterval(() => fetchData(series), 30000); // Refresh klines every 30s
 
         return () => {
+            clearInterval(dataInterval);
             window.removeEventListener('resize', handleResize);
             chart.remove();
         };
-    }, []);
+    }, [fetchData, handleResize]);
 
-    const fetchData = useCallback(async (newInterval: KlineInterval, series: ISeriesApi<'Candlestick'> | null) => {
-        setLoading(true);
-        const [klinesData, tickerData] = await Promise.all([
-            getKlines({
-                category: 'linear',
-                symbol: 'BTCUSDT',
-                interval: newInterval,
-                limit: 100,
-            }),
-            getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
-        ]);
-        
-        if (klinesData && series) {
-            const formattedData = klinesData.map(d => ({
-                time: (new Date(d.date).getTime() / 1000) as Time,
-                open: d.open,
-                high: d.high,
-                low: d.low,
-                close: d.close,
-            }));
-            series.setData(formattedData);
-            chartApiRef.current?.timeScale().fitContent();
-        }
-
-        if (tickerData.length > 0) {
-            setTicker(tickerData[0]);
-        }
-        
-        setLoading(false);
-    }, []);
-
-    useEffect(() => {
-        if (candlestickSeriesRef.current) {
-            fetchData(interval, candlestickSeriesRef.current);
-        }
-    }, [interval, fetchData]);
 
     useEffect(() => {
         const priceInterval = setInterval(async () => {
@@ -194,15 +187,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                         </span>
                     </div>
                 </div>
-                <Tabs defaultValue={interval} onValueChange={(value) => setInterval(value as KlineInterval)}>
-                    <TabsList>
-                        <TabsTrigger value="15">15m</TabsTrigger>
-                        <TabsTrigger value="30">30m</TabsTrigger>
-                        <TabsTrigger value="60">1h</TabsTrigger>
-                        <TabsTrigger value="240">4h</TabsTrigger>
-                        <TabsTrigger value="D">1d</TabsTrigger>
-                    </TabsList>
-                </Tabs>
+                 <span className="text-sm text-muted-foreground">30m</span>
             </CardHeader>
             <CardContent className="pt-0 h-[420px] relative">
                 {loading && <Skeleton className="absolute inset-0 h-full w-full" />}
