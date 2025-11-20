@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { DetailedChart } from '@/components/dashboard/detailed-chart';
+import { CandlestickChart } from '@/components/dashboard/candlestick-chart';
 import { TradePanel } from '@/components/dashboard/trade-panel';
 import { BalancePnl } from '@/components/dashboard/balance-pnl';
 import { ActiveTrade } from '@/components/dashboard/active-trade';
@@ -28,7 +28,7 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
-              <DetailedChart takeProfit={takeProfit} stopLoss={stopLoss} />
+              <CandlestickChart takeProfit={takeProfit} stopLoss={stopLoss} />
             </Suspense>
           </div>
           <div>
