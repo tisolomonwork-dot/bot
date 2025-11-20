@@ -1,8 +1,48 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { getPositions } from "@/lib/services/bybit-service";
+import { Skeleton } from "../ui/skeleton";
 
-export async function ActiveTrade({ btcPosition }: { btcPosition: any }) {
+type BtcPosition = {
+    symbol: string;
+    side: 'Buy' | 'Sell';
+    size: string;
+    avgPrice: string;
+    unrealisedPnl: string;
+} | undefined;
+
+
+export function ActiveTrade() {
+    const [btcPosition, setBtcPosition] = useState<BtcPosition>(undefined);
+    const [loading, setLoading] = useState(true);
+
+    const fetchBtcPosition = async () => {
+        try {
+            const positions = await getPositions();
+            const position = positions.find((p: any) => p.symbol === 'BTCUSDT');
+            setBtcPosition(position);
+        } catch (error) {
+            console.error("Failed to fetch active trade:", error);
+        } finally {
+            if (loading) {
+                setLoading(false);
+            }
+        }
+    }
+
+    useEffect(() => {
+        fetchBtcPosition();
+        const interval = setInterval(fetchBtcPosition, 5000);
+        return () => clearInterval(interval);
+    }, []);
+
+  if (loading) {
+    return <Skeleton className="h-40 lg:col-span-3" />;
+  }
 
   if (!btcPosition) {
     return (
