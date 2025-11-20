@@ -13,22 +13,22 @@ interface ChartTabsProps {
 
 export function ChartTabs({ takeProfit, stopLoss, entryPrice }: ChartTabsProps) {
   return (
-    <Tabs defaultValue="chart" className="w-full">
+    <Tabs defaultValue="ai-opinion" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="chart">Chart</TabsTrigger>
         <TabsTrigger value="ai-opinion">A.I. Opinion</TabsTrigger>
+        <TabsTrigger value="chart">Chart</TabsTrigger>
       </TabsList>
-      <TabsContent value="chart">
-         <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
-            <CandlestickChart takeProfit={takeProfit} stopLoss={stopLoss} entryPrice={entryPrice} />
-        </Suspense>
-      </TabsContent>
       <TabsContent value="ai-opinion">
         <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5 h-[532px]">
             <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
                 <AITabContent />
             </Suspense>
         </Card>
+      </TabsContent>
+      <TabsContent value="chart">
+         <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
+            <CandlestickChart takeProfit={takeProfit} stopLoss={stopLoss} entryPrice={entryPrice} />
+        </Suspense>
       </TabsContent>
     </Tabs>
   );
