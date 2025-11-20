@@ -165,12 +165,12 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         });
 
         const series = chart.addCandlestickSeries({
-            upColor: 'hsl(142.1, 70.6%, 45.3%)',
-            downColor: 'hsl(0, 72.2%, 50.6%)',
-            borderDownColor: 'hsl(0, 72.2%, 50.6%)',
-            borderUpColor: 'hsl(142.1, 70.6%, 45.3%)',
-            wickDownColor: 'hsl(0, 72.2%, 50.6%)',
-            wickUpColor: 'hsl(142.1, 70.6%, 45.3%)',
+            upColor: '#22c55e',
+            downColor: '#ef4444',
+            borderDownColor: '#ef4444',
+            borderUpColor: '#22c55e',
+            wickDownColor: '#ef4444',
+            wickUpColor: '#22c55e',
         });
         
         const maSeries = chart.addLineSeries({
@@ -259,7 +259,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (takeProfit) {
             positionLinesRef.current.tp = series.createPriceLine({
                 price: takeProfit,
-                color: 'hsl(142.1, 70.6%, 45.3%)',
+                color: '#22c55e',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
@@ -269,7 +269,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (stopLoss) {
             positionLinesRef.current.sl = series.createPriceLine({
                 price: stopLoss,
-                color: 'hsl(0, 72.2%, 50.6%)',
+                color: '#ef4444',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
@@ -279,7 +279,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (entryPrice) {
             positionLinesRef.current.entry = series.createPriceLine({
                 price: entryPrice,
-                color: 'hsl(210, 20%, 98%)',
+                color: '#fafafa',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dotted,
                 axisLabelVisible: true,
