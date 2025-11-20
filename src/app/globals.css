@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 10% 3.9%;
-    --radius: 0.5rem;
-    --positive: 142.1 76.2% 36.3%;
-    --negative: 0 84.2% 60.2%;
-    --chart-1: 227 72% 60%;
-    --chart-2: 197 71% 73%;
-    --chart-3: 341 91% 65%;
-    --chart-4: 39 92% 58%;
-    --chart-5: 161 82% 43%;
+    --background: 224 14% 10%;
+    --foreground: 210 20% 98%;
+    --card: 224 13% 13%;
+    --card-foreground: 210 20% 98%;
+    --popover: 224 13% 13%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 192 98% 50%;
+    --primary-foreground: 224 14% 10%;
+    --secondary: 215 14% 34%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 224 13% 20%;
+    --muted-foreground: 215.4 16.3% 56.9%;
+    --accent: 215 14% 34%;
+    --accent-foreground: 210 20% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 85.7% 97.3%;
+    --border: 215 14% 24%;
+    --input: 215 14% 24%;
+    --ring: 192 98% 50%;
+    --radius: 0.8rem;
+    --positive: 142.1 70.6% 45.3%;
+    --negative: 0 72.2% 50.6%;
+    --chart-1: 192 98% 50%; /* cyan */
+    --chart-2: 40 96% 56%; /* orange */
+    --chart-3: 341 91% 65%; /* pink */
+    --chart-4: 262 82% 62%; /* purple */
+    --chart-5: 161 82% 43%; /* green */
   }
 
   .dark {
@@ -53,7 +53,7 @@
     --border: 215 14% 24%;
     --input: 215 14% 24%;
     --ring: 192 98% 50%;
-    --radius: 0.5rem;
+    --radius: 0.8rem;
     --positive: 142.1 70.6% 45.3%;
     --negative: 0 72.2% 50.6%;
     --chart-1: 192 98% 50%; /* cyan */

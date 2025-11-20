@@ -99,15 +99,14 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             
             let level50, level618;
 
-             if (currentSentiment === 'Bullish') {
-                // Uptrend pullback (support): levels are below the high
+            if (currentSentiment === 'Bullish') {
                 level50 = recentHigh - range * 0.5;
                 level618 = recentHigh - range * 0.618;
             } else {
-                // Downtrend bounce (resistance): levels are above the low
                 level50 = recentLow + range * 0.5;
                 level618 = recentLow + range * 0.618;
             }
+
             
             if (retracementLinesRef.current.line50) series.removePriceLine(retracementLinesRef.current.line50);
             retracementLinesRef.current.line50 = series.createPriceLine({
@@ -148,12 +147,12 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             width: chartContainerRef.current.clientWidth,
             height: 420,
             layout: {
-                background: { color: 'rgba(22, 24, 33, 1)' },
+                background: { color: 'transparent' },
                 textColor: 'rgba(209, 213, 219, 1)',
             },
             grid: {
-                vertLines: { color: 'rgba(41, 45, 59, 1)' },
-                horzLines: { color: 'rgba(41, 45, 59, 1)' },
+                vertLines: { color: 'rgba(41, 45, 59, 0.5)' },
+                horzLines: { color: 'rgba(41, 45, 59, 0.5)' },
             },
             timeScale: {
                 borderColor: 'rgba(41, 45, 59, 1)',
@@ -239,20 +238,13 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
 
     // Update TP/SL/Entry lines
     useEffect(() => {
-        if (!candlestickSeriesRef.current) return;
         const series = candlestickSeriesRef.current;
-
-        // Clean up existing lines
-        if (positionLinesRef.current.tp) series.removePriceLine(positionLinesRef.current.tp);
-        if (positionLinesRef.current.sl) series.removePriceLine(positionLinesRef.current.sl);
-        if (positionLinesRef.current.entry) series.removePriceLine(positionLinesRef.current.entry);
-
-        // Reset refs
-        positionLinesRef.current.tp = null;
-        positionLinesRef.current.sl = null;
-        positionLinesRef.current.entry = null;
-
-        // Add new lines if props are provided
+        if (!series) return;
+    
+        if (positionLinesRef.current.tp) {
+            series.removePriceLine(positionLinesRef.current.tp);
+            positionLinesRef.current.tp = null;
+        }
         if (takeProfit) {
             positionLinesRef.current.tp = series.createPriceLine({
                 price: takeProfit,
@@ -263,6 +255,11 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 title: 'TP',
             });
         }
+    
+        if (positionLinesRef.current.sl) {
+            series.removePriceLine(positionLinesRef.current.sl);
+            positionLinesRef.current.sl = null;
+        }
         if (stopLoss) {
             positionLinesRef.current.sl = series.createPriceLine({
                 price: stopLoss,
@@ -272,6 +269,11 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: 'SL',
             });
+        }
+    
+        if (positionLinesRef.current.entry) {
+            series.removePriceLine(positionLinesRef.current.entry);
+            positionLinesRef.current.entry = null;
         }
         if (entryPrice) {
             positionLinesRef.current.entry = series.createPriceLine({
@@ -326,9 +328,3 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         </Card>
     );
 }
-
-    
-
-    
-
-    
