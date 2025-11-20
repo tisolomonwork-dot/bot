@@ -20,13 +20,14 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const chartApiRef = useRef<IChartApi | null>(null);
     const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
     const ma200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
+    const retracementLinesRef = useRef<{ line50: IPriceLine | null, line60: IPriceLine | null }>({ line50: null, line60: null });
+
     const [loading, setLoading] = useState(true);
     const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
     const [tpLine, setTpLine] = useState<IPriceLine | null>(null);
     const [slLine, setSlLine] = useState<IPriceLine | null>(null);
     const [entryLine, setEntryLine] = useState<IPriceLine | null>(null);
-    const [retracement50Line, setRetracement50Line] = useState<IPriceLine | null>(null);
-    const [retracement60Line, setRetracement60Line] = useState<IPriceLine | null>(null);
+    
     const [marketSentiment, setMarketSentiment] = useState<'Bullish' | 'Bearish' | null>(null);
     const [priceProximityEmoji, setPriceProximityEmoji] = useState<string | null>(null);
 
@@ -87,8 +88,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             const level50 = recentLow + range * 0.5;
             const level60 = recentLow + range * 0.6;
             
-            if (retracement50Line) series.removePriceLine(retracement50Line);
-            const new50Line = series.createPriceLine({
+            if (retracementLinesRef.current.line50) series.removePriceLine(retracementLinesRef.current.line50);
+            retracementLinesRef.current.line50 = series.createPriceLine({
                 price: level50,
                 color: 'rgba(255, 193, 7, 0.5)',
                 lineWidth: 1,
@@ -96,10 +97,9 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: '50%',
             });
-            setRetracement50Line(new50Line);
             
-            if (retracement60Line) series.removePriceLine(retracement60Line);
-            const new60Line = series.createPriceLine({
+            if (retracementLinesRef.current.line60) series.removePriceLine(retracementLinesRef.current.line60);
+            retracementLinesRef.current.line60 = series.createPriceLine({
                 price: level60,
                 color: 'rgba(3, 169, 244, 0.5)',
                 lineWidth: 1,
@@ -107,7 +107,6 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: '60%',
             });
-            setRetracement60Line(new60Line);
 
             const ma200Data = calculateMA(formattedData, 200);
             maSeries.setData(ma200Data);
@@ -129,7 +128,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         }
         
         setLoading(false);
-    }, [retracement50Line, retracement60Line]);
+    }, []);
 
     useEffect(() => {
         if (!chartContainerRef.current) return;
@@ -248,6 +247,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 title: 'TP',
             });
             setTpLine(newTpLine);
+        } else {
+            setTpLine(null);
         }
         if (stopLoss) {
             const newSlLine = series.createPriceLine({
@@ -259,6 +260,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 title: 'SL',
             });
             setSlLine(newSlLine);
+        } else {
+            setSlLine(null);
         }
         if (entryPrice) {
             const newEntryLine = series.createPriceLine({
@@ -270,6 +273,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 title: 'Entry',
             });
             setEntryLine(newEntryLine);
+        } else {
+            setEntryLine(null);
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [takeProfit, stopLoss, entryPrice]);
