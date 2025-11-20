@@ -22,12 +22,9 @@ export default async function DashboardPage() {
           <Suspense fallback={<Skeleton className="h-32 rounded-xl" />}>
             <BalancePnl />
           </Suspense>
-          <Suspense fallback={<Skeleton className="h-32 rounded-xl lg:col-span-2" />}>
-            <BalancePnl />
-          </Suspense>
         </div>
         <div className="grid grid-cols-1 gap-4">
-            <Suspense fallback={<Skeleton className="h-32 rounded-xl" />}>
+            <Suspense fallback={<Skeleton className="h-32 rounded-xl lg:col-span-4" />}>
                 <ActiveTrade btcPosition={btcPosition} />
             </Suspense>
         </div>
