@@ -100,11 +100,11 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             let level50, level618;
 
             if (currentSentiment === 'Bullish') {
-                // Uptrend pullback: levels are below the high
+                // Uptrend pullback (support): levels are below the high
                 level50 = recentHigh - range * 0.5;
                 level618 = recentHigh - range * 0.618;
             } else {
-                // Downtrend bounce: levels are above the low
+                // Downtrend bounce (resistance): levels are above the low
                 level50 = recentLow + range * 0.5;
                 level618 = recentLow + range * 0.618;
             }
@@ -327,5 +327,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         </Card>
     );
 }
+
+    
 
     
