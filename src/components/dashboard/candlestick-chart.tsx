@@ -99,7 +99,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             
             let level50, level618;
 
-            if (currentSentiment === 'Bullish') {
+             if (currentSentiment === 'Bullish') {
                 // Uptrend pullback (support): levels are below the high
                 level50 = recentHigh - range * 0.5;
                 level618 = recentHigh - range * 0.618;
@@ -196,7 +196,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             chart.remove();
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fetchData, handleResize]);
+    }, []);
 
 
     useEffect(() => {
@@ -242,12 +242,17 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (!candlestickSeriesRef.current) return;
         const series = candlestickSeriesRef.current;
 
-        // Remove old lines if they exist
+        // Clean up existing lines
         if (positionLinesRef.current.tp) series.removePriceLine(positionLinesRef.current.tp);
         if (positionLinesRef.current.sl) series.removePriceLine(positionLinesRef.current.sl);
         if (positionLinesRef.current.entry) series.removePriceLine(positionLinesRef.current.entry);
 
-        // Add new lines
+        // Reset refs
+        positionLinesRef.current.tp = null;
+        positionLinesRef.current.sl = null;
+        positionLinesRef.current.entry = null;
+
+        // Add new lines if props are provided
         if (takeProfit) {
             positionLinesRef.current.tp = series.createPriceLine({
                 price: takeProfit,
@@ -257,8 +262,6 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: 'TP',
             });
-        } else {
-            positionLinesRef.current.tp = null;
         }
         if (stopLoss) {
             positionLinesRef.current.sl = series.createPriceLine({
@@ -269,8 +272,6 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: 'SL',
             });
-        } else {
-            positionLinesRef.current.sl = null;
         }
         if (entryPrice) {
             positionLinesRef.current.entry = series.createPriceLine({
@@ -281,8 +282,6 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: 'Entry',
             });
-        } else {
-            positionLinesRef.current.entry = null;
         }
     }, [takeProfit, stopLoss, entryPrice]);
 
@@ -327,6 +326,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         </Card>
     );
 }
+
+    
 
     
 
