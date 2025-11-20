@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { createChart, type IChartApi, type ISeriesApi, type Time } from 'lightweight-charts';
+import { createChart, type IChartApi, type ISeriesApi, type Time, type PriceLineOptions, type IPriceLine } from 'lightweight-charts';
 import { getKlines, getTickers } from "@/lib/services/bybit-service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +24,8 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
     const [interval, setInterval] = useState<KlineInterval>('60');
     const [loading, setLoading] = useState(true);
     const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
+    const [tpLine, setTpLine] = useState<IPriceLine | null>(null);
+    const [slLine, setSlLine] = useState<IPriceLine | null>(null);
 
     const handleResize = useCallback(() => {
         if (chartApiRef.current && chartContainerRef.current) {
@@ -130,13 +132,21 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
     // Update TP/SL lines
     useEffect(() => {
         if (!candlestickSeriesRef.current) return;
-        
         const series = candlestickSeriesRef.current;
-        const currentLines = series.priceLines();
-        currentLines.forEach(line => series.removePriceLine(line));
 
+        // Remove old lines if they exist
+        if (tpLine) {
+            series.removePriceLine(tpLine);
+            setTpLine(null);
+        }
+        if (slLine) {
+            series.removePriceLine(slLine);
+            setSlLine(null);
+        }
+
+        // Add new lines
         if (takeProfit) {
-            series.createPriceLine({
+            const newTpLine = series.createPriceLine({
                 price: takeProfit,
                 color: 'rgba(57, 166, 103, 1)',
                 lineWidth: 1,
@@ -144,9 +154,10 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
                 axisLabelVisible: true,
                 title: 'TP',
             });
+            setTpLine(newTpLine);
         }
         if (stopLoss) {
-            series.createPriceLine({
+            const newSlLine = series.createPriceLine({
                 price: stopLoss,
                 color: 'rgba(215, 84, 84, 1)',
                 lineWidth: 1,
@@ -154,8 +165,9 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
                 axisLabelVisible: true,
                 title: 'SL',
             });
+            setSlLine(newSlLine);
         }
-    }, [takeProfit, stopLoss]);
+    }, [takeProfit, stopLoss, slLine, tpLine]);
 
     const priceChangePercent = ticker ? parseFloat(ticker.price24hPcnt) * 100 : 0;
 
