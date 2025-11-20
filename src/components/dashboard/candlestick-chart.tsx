@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -20,7 +21,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const chartApiRef = useRef<IChartApi | null>(null);
     const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
     const ma200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
-    const retracementLinesRef = useRef<{ line50: IPriceLine | null, line62: IPriceLine | null }>({ line50: null, line62: null });
+    const retracementLinesRef = useRef<{ line50: IPriceLine | null, line618: IPriceLine | null }>({ line50: null, line618: null });
     const positionLinesRef = useRef<{ tp: IPriceLine | null, sl: IPriceLine | null, entry: IPriceLine | null }>({ tp: null, sl: null, entry: null });
 
     const [loading, setLoading] = useState(true);
@@ -117,8 +118,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 title: '50%',
             });
             
-            if (retracementLinesRef.current.line62) series.removePriceLine(retracementLinesRef.current.line62);
-            retracementLinesRef.current.line62 = series.createPriceLine({
+            if (retracementLinesRef.current.line618) series.removePriceLine(retracementLinesRef.current.line618);
+            retracementLinesRef.current.line618 = series.createPriceLine({
                 price: level618,
                 color: 'rgba(3, 169, 244, 0.5)',
                 lineWidth: 1,
@@ -147,29 +148,29 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             height: 420,
             layout: {
                 background: { color: 'transparent' },
-                textColor: 'hsl(var(--muted-foreground))',
+                textColor: 'hsl(215.4 16.3% 56.9%)',
             },
             grid: {
-                vertLines: { color: 'hsl(var(--border))' },
-                horzLines: { color: 'hsl(var(--border))' },
+                vertLines: { color: 'hsl(224 33% 15%)' },
+                horzLines: { color: 'hsl(224 33% 15%)' },
             },
             timeScale: {
-                borderColor: 'hsl(var(--border))',
+                borderColor: 'hsl(224 33% 15%)',
                 timeVisible: true,
                 secondsVisible: false,
             },
             rightPriceScale: {
-                borderColor: 'hsl(var(--border))',
+                borderColor: 'hsl(224 33% 15%)',
             },
         });
 
         const series = chart.addCandlestickSeries({
-            upColor: 'hsl(var(--positive))',
-            downColor: 'hsl(var(--negative))',
-            borderDownColor: 'hsl(var(--negative))',
-            borderUpColor: 'hsl(var(--positive))',
-            wickDownColor: 'hsl(var(--negative))',
-            wickUpColor: 'hsl(var(--positive))',
+            upColor: 'hsl(142.1 70.6% 45.3%)',
+            downColor: 'hsl(0 72.2% 50.6%)',
+            borderDownColor: 'hsl(0 72.2% 50.6%)',
+            borderUpColor: 'hsl(142.1 70.6% 45.3%)',
+            wickDownColor: 'hsl(0 72.2% 50.6%)',
+            wickUpColor: 'hsl(142.1 70.6% 45.3%)',
         });
         
         const maSeries = chart.addLineSeries({
@@ -198,7 +199,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
 
 
     useEffect(() => {
-        const getEmoji = (price: number, tp: number, sl: number, entry: number) => {
+        const getEmoji = (price: number, tp: number, sl: number) => {
             if (price <= sl) return '💀';
             if (price >= tp) return '💰';
             
@@ -224,8 +225,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                     close: lastPrice,
                 });
                 
-                if (takeProfit && stopLoss && entryPrice) {
-                    setPriceProximityEmoji(getEmoji(lastPrice, takeProfit, stopLoss, entryPrice));
+                if (takeProfit && stopLoss) {
+                    setPriceProximityEmoji(getEmoji(lastPrice, takeProfit, stopLoss));
                 } else {
                     setPriceProximityEmoji(null);
                 }
@@ -233,7 +234,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         }, 3000);
 
         return () => clearInterval(priceInterval);
-    }, [takeProfit, stopLoss, entryPrice]);
+    }, [takeProfit, stopLoss]);
 
     // Update TP/SL/Entry lines
     useEffect(() => {
@@ -244,12 +245,16 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (positionLinesRef.current.tp) series.removePriceLine(positionLinesRef.current.tp);
         if (positionLinesRef.current.sl) series.removePriceLine(positionLinesRef.current.sl);
         if (positionLinesRef.current.entry) series.removePriceLine(positionLinesRef.current.entry);
-    
+        
+        positionLinesRef.current.tp = null;
+        positionLinesRef.current.sl = null;
+        positionLinesRef.current.entry = null;
+
         // Draw new lines
         if (takeProfit) {
             positionLinesRef.current.tp = series.createPriceLine({
                 price: takeProfit,
-                color: 'hsl(var(--positive))',
+                color: 'hsl(142.1 70.6% 45.3%)',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
@@ -259,7 +264,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (stopLoss) {
             positionLinesRef.current.sl = series.createPriceLine({
                 price: stopLoss,
-                color: 'hsl(var(--negative))',
+                color: 'hsl(0 72.2% 50.6%)',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
@@ -269,7 +274,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (entryPrice) {
             positionLinesRef.current.entry = series.createPriceLine({
                 price: entryPrice,
-                color: 'hsl(var(--foreground))',
+                color: 'hsl(210 20% 98%)',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dotted,
                 axisLabelVisible: true,
