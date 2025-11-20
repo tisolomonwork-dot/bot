@@ -128,7 +128,7 @@ export function DetailedChart({ takeProfit, stopLoss }: DetailedChartProps) {
                     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                 }}
                 />
-                <YAxis domain={['dataMin - 100', 'dataMax + 100']} tickLine={false} axisLine={false} tickMargin={8} orientation="right" tickFormatter={(value) => `$${(typeof value === 'number' ? value/1000 : 0).toFixed(0)}k`} />
+                <YAxis domain={['auto', 'auto']} tickLine={false} axisLine={false} tickMargin={8} orientation="right" tickFormatter={(value) => `$${(typeof value === 'number' ? value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) : 0)}`} />
                 <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="line" labelFormatter={(label) => new Date(label).toLocaleString()} />} />
                 <defs>
                 <linearGradient id="fillPrice" x1="0" y1="0" x2="0" y2="1">
