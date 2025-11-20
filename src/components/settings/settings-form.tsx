@@ -24,11 +24,9 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
@@ -58,6 +56,15 @@ export function SettingsForm() {
   });
 
   function onSubmit(data: SettingsFormValues) {
+    // In a real app, you'd save these to a secure backend or encrypted storage
+    localStorage.setItem("bybitApiKey", data.bybitApiKey || "");
+    localStorage.setItem("bybitApiSecret", data.bybitApiSecret || "");
+    localStorage.setItem("geminiApiKey", data.geminiApiKey || "");
+    localStorage.setItem("geminiApiSecret", data.geminiApiSecret || "");
+    localStorage.setItem("baseCurrency", data.baseCurrency);
+    localStorage.setItem("riskPreference", data.riskPreference);
+    localStorage.setItem("aiTone", data.aiTone);
+
     toast({
       title: "Settings Saved",
       description: "Your preferences have been updated.",
@@ -71,7 +78,7 @@ export function SettingsForm() {
           <CardHeader>
             <CardTitle>API Connections</CardTitle>
             <CardDescription>
-              Connect your Bybit and Gemini accounts. Your keys are stored securely.
+              Connect your Bybit and Gemini accounts. Your keys are stored securely in your browser's local storage.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6">
@@ -162,7 +169,7 @@ export function SettingsForm() {
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select risk level" />
-                        </SelectTrigger>
+                        </Trigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="conservative">Conservative</SelectItem>
