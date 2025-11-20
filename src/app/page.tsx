@@ -4,8 +4,8 @@ import { CandlestickChart } from '@/components/dashboard/candlestick-chart';
 import { TradePanel } from '@/components/dashboard/trade-panel';
 import { BalancePnl } from '@/components/dashboard/balance-pnl';
 import { ActiveTrade } from '@/components/dashboard/active-trade';
-import { FloatingChat } from '@/components/dashboard/floating-chat';
 import { getPositions } from '@/lib/services/bybit-service';
+import { FloatingChat } from '@/components/dashboard/floating-chat';
 
 export default async function DashboardPage() {
   const positions = await getPositions();
@@ -13,6 +13,7 @@ export default async function DashboardPage() {
 
   const takeProfit = btcPosition?.takeProfit ? parseFloat(btcPosition.takeProfit) : undefined;
   const stopLoss = btcPosition?.stopLoss ? parseFloat(btcPosition.stopLoss) : undefined;
+  const entryPrice = btcPosition?.avgPrice ? parseFloat(btcPosition.avgPrice) : undefined;
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
@@ -22,13 +23,13 @@ export default async function DashboardPage() {
             <BalancePnl />
           </Suspense>
           <Suspense fallback={<Skeleton className="h-32 rounded-xl lg:col-span-3" />}>
-            <ActiveTrade />
+            <ActiveTrade btcPosition={btcPosition} />
           </Suspense>
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
-              <CandlestickChart takeProfit={takeProfit} stopLoss={stopLoss} />
+              <CandlestickChart takeProfit={takeProfit} stopLoss={stopLoss} entryPrice={entryPrice} />
             </Suspense>
           </div>
           <div>

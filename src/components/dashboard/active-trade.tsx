@@ -13,12 +13,17 @@ type BtcPosition = {
     size: string;
     avgPrice: string;
     unrealisedPnl: string;
+    takeProfit?: string;
+    stopLoss?: string;
 } | undefined;
 
+interface ActiveTradeProps {
+    btcPosition: BtcPosition;
+}
 
-export function ActiveTrade() {
-    const [btcPosition, setBtcPosition] = useState<BtcPosition>(undefined);
-    const [loading, setLoading] = useState(true);
+export function ActiveTrade({ btcPosition: initialPosition }: ActiveTradeProps) {
+    const [btcPosition, setBtcPosition] = useState<BtcPosition>(initialPosition);
+    const [loading, setLoading] = useState(!initialPosition);
 
     const fetchBtcPosition = async () => {
         try {
@@ -35,7 +40,7 @@ export function ActiveTrade() {
     }
 
     useEffect(() => {
-        fetchBtcPosition();
+        // We still fetch to get live PnL updates, but we have the initial state
         const interval = setInterval(fetchBtcPosition, 5000);
         return () => clearInterval(interval);
     }, []);
@@ -59,6 +64,8 @@ export function ActiveTrade() {
   }
 
   const pnl = parseFloat(btcPosition.unrealisedPnl);
+  const takeProfit = btcPosition.takeProfit ? parseFloat(btcPosition.takeProfit) : null;
+  const stopLoss = btcPosition.stopLoss ? parseFloat(btcPosition.stopLoss) : null;
 
   return (
     <Card className="lg:col-span-3 bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
@@ -66,7 +73,7 @@ export function ActiveTrade() {
             <CardTitle>Active BTCUSDT Trade</CardTitle>
             <CardDescription>Your current open position for Bitcoin.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <CardContent className="grid grid-cols-3 md:grid-cols-6 gap-4 text-sm">
             <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Side</p>
                 <Badge variant={btcPosition.side === 'Buy' ? 'default' : 'destructive'} className={cn('w-fit', btcPosition.side === 'Buy' ? 'bg-positive/20 text-positive border-positive/30' : 'bg-negative/20 text-negative border-negative/30')}>
@@ -80,6 +87,14 @@ export function ActiveTrade() {
             <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Entry Price</p>
                 <p className="text-lg font-semibold">{parseFloat(btcPosition.avgPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
+            </div>
+             <div className="flex flex-col gap-1">
+                <p className="text-muted-foreground">Take Profit</p>
+                <p className="text-lg font-semibold">{takeProfit ? takeProfit.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'N/A'}</p>
+            </div>
+             <div className="flex flex-col gap-1">
+                <p className="text-muted-foreground">Stop Loss</p>
+                <p className="text-lg font-semibold">{stopLoss ? stopLoss.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'N/A'}</p>
             </div>
             <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Unrealized PnL</p>

@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { createChart, type IChartApi, type ISeriesApi, type Time, type PriceLineOptions, type IPriceLine } from 'lightweight-charts';
+import { createChart, type IChartApi, type ISeriesApi, type Time, type PriceLineOptions, type IPriceLine, LineStyle } from 'lightweight-charts';
 import { getKlines, getTickers } from "@/lib/services/bybit-service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,9 +15,10 @@ type KlineInterval = '15' | '30' | '60' | '240' | 'D';
 interface CandlestickChartProps {
     takeProfit?: number;
     stopLoss?: number;
+    entryPrice?: number;
 }
 
-export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps) {
+export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: CandlestickChartProps) {
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartApiRef = useRef<IChartApi | null>(null);
     const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
@@ -26,6 +27,7 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
     const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
     const [tpLine, setTpLine] = useState<IPriceLine | null>(null);
     const [slLine, setSlLine] = useState<IPriceLine | null>(null);
+    const [entryLine, setEntryLine] = useState<IPriceLine | null>(null);
 
     const handleResize = useCallback(() => {
         if (chartApiRef.current && chartContainerRef.current) {
@@ -129,20 +131,15 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
         return () => clearInterval(priceInterval);
     }, []);
 
-    // Update TP/SL lines
+    // Update TP/SL/Entry lines
     useEffect(() => {
         if (!candlestickSeriesRef.current) return;
         const series = candlestickSeriesRef.current;
 
         // Remove old lines if they exist
-        if (tpLine) {
-            series.removePriceLine(tpLine);
-            setTpLine(null);
-        }
-        if (slLine) {
-            series.removePriceLine(slLine);
-            setSlLine(null);
-        }
+        if (tpLine) series.removePriceLine(tpLine);
+        if (slLine) series.removePriceLine(slLine);
+        if (entryLine) series.removePriceLine(entryLine);
 
         // Add new lines
         if (takeProfit) {
@@ -150,7 +147,7 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
                 price: takeProfit,
                 color: 'rgba(57, 166, 103, 1)',
                 lineWidth: 1,
-                lineStyle: 2, // Dashed
+                lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
                 title: 'TP',
             });
@@ -161,13 +158,24 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
                 price: stopLoss,
                 color: 'rgba(215, 84, 84, 1)',
                 lineWidth: 1,
-                lineStyle: 2, // Dashed
+                lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
                 title: 'SL',
             });
             setSlLine(newSlLine);
         }
-    }, [takeProfit, stopLoss, slLine, tpLine]);
+        if (entryPrice) {
+            const newEntryLine = series.createPriceLine({
+                price: entryPrice,
+                color: 'rgba(255, 255, 255, 0.7)',
+                lineWidth: 1,
+                lineStyle: LineStyle.Dotted,
+                axisLabelVisible: true,
+                title: 'Entry',
+            });
+            setEntryLine(newEntryLine);
+        }
+    }, [takeProfit, stopLoss, entryPrice]);
 
     const priceChangePercent = ticker ? parseFloat(ticker.price24hPcnt) * 100 : 0;
 
