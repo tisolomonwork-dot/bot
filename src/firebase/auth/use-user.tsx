@@ -17,17 +17,18 @@ export function useUser() {
   const firestore = useFirestore();
 
   useEffect(() => {
+    // If auth is not yet available, we are still in a loading state.
+    // The effect will re-run when auth is initialized.
     if (!auth) {
-      setLoading(false);
       return;
     }
 
-    // onAuthStateChanged is the single source of truth for the user's auth state.
-    // It fires on sign-in, sign-out, and when the app loads, handling the result of a redirect.
+    // onAuthStateChanged is the single source of truth.
+    // It fires on sign-in, sign-out, and after a redirect.
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         setUser(user);
-        // If the user is signed in, create or update their document in Firestore.
+        // Create or update the user's document in Firestore.
         if (firestore) {
           const userRef = doc(firestore, `users/${user.uid}`);
           setDoc(
@@ -44,20 +45,19 @@ export function useUser() {
       } else {
         setUser(null);
       }
-      // This is the definitive point where we know the auth state is resolved,
-      // so we can stop the loading indicator.
+      // This is the definitive point where we know the auth state is resolved.
       setLoading(false);
     });
 
     // Cleanup subscription on unmount
     return () => unsubscribe();
-  }, [auth, firestore]);
+  }, [auth, firestore]); // The key change is re-running this effect when `auth` becomes available.
 
   const signIn = async (provider: 'google') => {
     if (!auth) return;
     setLoading(true);
     const googleProvider = new GoogleAuthProvider();
-    // Use signInWithRedirect for a more robust mobile experience.
+    // Use signInWithRedirect for a better mobile experience.
     await signInWithRedirect(auth, googleProvider);
   };
 
