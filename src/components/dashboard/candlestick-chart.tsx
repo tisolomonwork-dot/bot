@@ -28,6 +28,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const [retracement50Line, setRetracement50Line] = useState<IPriceLine | null>(null);
     const [retracement60Line, setRetracement60Line] = useState<IPriceLine | null>(null);
     const [marketSentiment, setMarketSentiment] = useState<'Bullish' | 'Bearish' | null>(null);
+    const [priceProximityEmoji, setPriceProximityEmoji] = useState<string | null>(null);
 
     const handleResize = useCallback(() => {
         if (chartApiRef.current && chartContainerRef.current) {
@@ -80,9 +81,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             }));
             series.setData(formattedData);
 
-            // Calculate and draw retracement lines
-            const recentLow = Math.min(...formattedData.map(d => d.low));
-            const recentHigh = Math.max(...formattedData.map(d => d.high));
+            const recentLow = Math.min(...formattedData.slice(-50).map(d => d.low));
+            const recentHigh = Math.max(...formattedData.slice(-50).map(d => d.high));
             const range = recentHigh - recentLow;
             const level50 = recentLow + range * 0.5;
             const level60 = recentLow + range * 0.6;
@@ -129,8 +129,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         }
         
         setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [retracement50Line, retracement60Line]);
 
     useEffect(() => {
         if (!chartContainerRef.current) return;
@@ -191,6 +190,20 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
 
 
     useEffect(() => {
+        const getEmoji = (price: number, tp: number, sl: number, entry: number) => {
+            if (price <= sl) return '💀';
+            if (price >= tp) return '💰';
+            
+            const range = tp - sl;
+            const progress = (price - sl) / range;
+            
+            if (progress < 0.1) return '😨';
+            if (progress < 0.3) return '🤔';
+            if (progress < 0.7) return '👀';
+            if (progress < 0.9) return '😎';
+            return '🤑';
+        }
+
         const priceInterval = setInterval(async () => {
              const tickerData = await getTickers({ category: 'linear', symbol: 'BTCUSDT' });
              if (tickerData.length > 0) {
@@ -202,11 +215,17 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                     time: (Date.now() / 1000) as Time,
                     close: lastPrice,
                 });
+                
+                if (takeProfit && stopLoss && entryPrice) {
+                    setPriceProximityEmoji(getEmoji(lastPrice, takeProfit, stopLoss, entryPrice));
+                } else {
+                    setPriceProximityEmoji(null);
+                }
             }
         }, 3000);
 
         return () => clearInterval(priceInterval);
-    }, []);
+    }, [takeProfit, stopLoss, entryPrice]);
 
     // Update TP/SL/Entry lines
     useEffect(() => {
@@ -286,10 +305,13 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                         {marketSentiment}
                     </div>
                 )}
+                 {priceProximityEmoji && (
+                    <div className="absolute top-2 right-2 z-10 text-2xl animate-pulse">
+                        {priceProximityEmoji}
+                    </div>
+                 )}
                 <div ref={chartContainerRef} className={cn("h-full w-full", loading && "opacity-0")} />
             </CardContent>
         </Card>
     );
 }
-
-    
