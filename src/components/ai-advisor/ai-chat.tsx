@@ -71,7 +71,7 @@ export function AiChat() {
   };
 
   return (
-    <Card className="flex flex-col h-[60vh]">
+    <Card className="flex flex-col h-[60vh] bg-transparent border-0 shadow-none">
       <CardHeader>
         <CardTitle>Ask the AI</CardTitle>
         <CardDescription>Get instant answers to your trading questions.</CardDescription>
