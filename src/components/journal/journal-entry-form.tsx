@@ -8,13 +8,6 @@ import { useUser } from '@/firebase/auth/use-user';
 import { useFirestore } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,7 +25,11 @@ const journalSchema = z.object({
 
 type JournalFormValues = z.infer<typeof journalSchema>;
 
-export function JournalEntryForm() {
+interface JournalEntryFormProps {
+    onSave?: () => void;
+}
+
+export function JournalEntryForm({ onSave }: JournalEntryFormProps) {
   const { toast } = useToast();
   const { user, loading: userLoading } = useUser();
   const firestore = useFirestore();
@@ -57,12 +54,14 @@ export function JournalEntryForm() {
         content: data.content,
         userId: user.uid,
         date: serverTimestamp(),
+        isInsight: false, // User-added entries are not AI insights
       });
       toast({
         title: 'Entry Saved',
         description: 'Your journal entry has been successfully saved.',
       });
       form.reset();
+      onSave?.(); // Callback to close dialog
     } catch (error) {
         console.error("Error adding document: ", error);
         toast({
@@ -74,40 +73,30 @@ export function JournalEntryForm() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>New Journal Entry</CardTitle>
-        <CardDescription>
-          What's on your mind? Log a trade, a feeling, or an observation.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="content"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="sr-only">Journal Entry</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      {...field}
-                      placeholder="e.g., 'BTC is showing strong support at $68k. I'm considering a long position if it holds for the next 4 hours...'"
-                      className="min-h-[200px]"
-                      disabled={userLoading || form.formState.isSubmitting}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={userLoading || form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? 'Saving...' : 'Save Entry'}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+            control={form.control}
+            name="content"
+            render={({ field }) => (
+            <FormItem>
+                <FormLabel className="sr-only">Journal Entry</FormLabel>
+                <FormControl>
+                <Textarea
+                    {...field}
+                    placeholder="e.g., 'BTC is showing strong support at $68k. I'm considering a long position if it holds for the next 4 hours...'"
+                    className="min-h-[200px]"
+                    disabled={userLoading || form.formState.isSubmitting}
+                />
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+            )}
+        />
+        <Button type="submit" className="w-full" disabled={userLoading || form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? 'Saving...' : 'Save Entry'}
+        </Button>
+        </form>
+    </Form>
   );
 }

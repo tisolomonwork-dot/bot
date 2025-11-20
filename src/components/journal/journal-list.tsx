@@ -10,6 +10,8 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { format } from 'date-fns';
 import { type DocumentData } from 'firebase/firestore';
+import { Lightbulb } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface JournalListProps {
   entries: DocumentData[];
@@ -17,33 +19,37 @@ interface JournalListProps {
 
 export function JournalList({ entries }: JournalListProps) {
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle>Past Entries</CardTitle>
-        <CardDescription>Review your previous journal entries.</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <div className="h-full">
         {entries.length === 0 ? (
            <div className="flex items-center justify-center h-[60vh]">
                 <p className="text-muted-foreground">You have no journal entries yet.</p>
            </div>
         ) : (
-        <ScrollArea className="h-[60vh] pr-4">
-          <div className="space-y-6">
+          <div className="space-y-4">
             {entries.map((entry) => (
-              <div key={entry.id} className="border-l-4 border-primary pl-4">
-                <p className="text-sm text-muted-foreground">
-                  {entry.date ? format(entry.date.toDate(), 'MMMM d, yyyy - h:mm a') : 'Date not available'}
-                </p>
-                <p className="mt-1 whitespace-pre-wrap text-foreground/90">
-                  {entry.content}
-                </p>
-              </div>
+              <Card key={entry.id} className={cn("transition-all", entry.isInsight && "bg-lime-200/10 border-lime-400/20")}>
+                <CardHeader>
+                    <div className="flex justify-between items-center">
+                        <div className='flex items-baseline gap-2'>
+                            <p className="font-semibold text-foreground">
+                            {entry.date ? format(entry.date.toDate(), 'dd MMM, yyyy') : 'Date not available'}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                            {entry.date ? format(entry.date.toDate(), 'EEEE') : ''}
+                            </p>
+                        </div>
+                        {entry.isInsight && <Lightbulb className="h-5 w-5 text-lime-400" />}
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground line-clamp-3">
+                        {entry.content}
+                    </p>
+                </CardContent>
+              </Card>
             ))}
           </div>
-        </ScrollArea>
         )}
-      </CardContent>
-    </Card>
+    </div>
   );
 }
