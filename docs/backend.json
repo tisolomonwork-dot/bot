@@ -22,27 +22,6 @@
         }
       },
       "required": ["displayName", "email"]
-    },
-    "JournalEntry": {
-        "title": "Journal Entry",
-        "description": "A single entry in the trading journal.",
-        "type": "object",
-        "properties": {
-            "userId": {
-                "type": "string",
-                "description": "The ID of the user who created the entry."
-            },
-            "content": {
-                "type": "string",
-                "description": "The text content of the journal entry."
-            },
-            "date": {
-                "type": "string",
-                "format": "date-time",
-                "description": "The timestamp when the entry was created."
-            }
-        },
-        "required": ["userId", "content", "date"]
     }
   },
   "auth": {
@@ -54,12 +33,6 @@
         "$ref": "#/entities/UserProfile"
       },
       "description": "Stores public profile information for each user."
-    },
-    "/journal/{entryId}": {
-        "schema": {
-            "$ref": "#/entities/JournalEntry"
-        },
-        "description": "Stores journal entries for all users."
     }
   }
 }
