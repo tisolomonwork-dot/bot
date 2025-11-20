@@ -83,33 +83,7 @@ export function DetailedChart({ takeProfit, stopLoss }: DetailedChartProps) {
 
   return (
     <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
-      <CardHeader>
-        <div className="flex justify-between items-center">
-            <div>
-                <CardTitle>BTC/USD</CardTitle>
-                {ticker ? (
-                     <CardDescription>
-                        <span className="text-3xl font-bold mr-2">${parseFloat(ticker.lastPrice).toLocaleString()}</span>
-                        <span className={cn("text-sm font-medium", priceChangePercent >= 0 ? "text-positive" : "text-negative")}>
-                            {priceChangePercent.toFixed(2)}%
-                        </span>
-                    </CardDescription>
-                ) : (
-                    <Skeleton className="h-9 w-48 mt-1" />
-                )}
-            </div>
-            <Tabs defaultValue={interval} onValueChange={(value) => setInterval(value as KlineInterval)}>
-                <TabsList>
-                    <TabsTrigger value="15">15m</TabsTrigger>
-                    <TabsTrigger value="30">30m</TabsTrigger>
-                    <TabsTrigger value="60">1h</TabsTrigger>
-                    <TabsTrigger value="240">4h</TabsTrigger>
-                    <TabsTrigger value="D">1d</TabsTrigger>
-                </TabsList>
-            </Tabs>
-        </div>
-      </CardHeader>
-      <CardContent>
+      <CardContent className="pt-6">
         {loading ? (
             <Skeleton className="h-[400px] w-full" />
         ) : (
