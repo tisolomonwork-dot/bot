@@ -2,8 +2,8 @@
 
 import CryptoJS from 'crypto-js';
 
-const BYBIT_API_KEY = process.env.BYBIT_API_KEY || "RhoADnQnBB8csLKXUZ";
-const BYBIT_API_SECRET = process.env.BYBIT_API_SECRET || "7kYPwUFixFTtiWJHfhaPptjj3oyjAk6tCc02";
+const BYBIT_API_KEY = process.env.BYBIT_API_KEY;
+const BYBIT_API_SECRET = process.env.BYBIT_API_SECRET;
 const BYBIT_BASE_URL = "https://api.bybit.com";
 
 interface BybitResponse {
@@ -14,14 +14,28 @@ interface BybitResponse {
 }
 
 function createSignature(params: string, timestamp: string): string {
-  const message = timestamp + BYBIT_API_KEY + "5000" + params;
-  return CryptoJS.HmacSHA256(message, BYBIT_API_SECRET).toString();
+    if (!BYBIT_API_KEY || !BYBIT_API_SECRET) {
+        throw new Error("Bybit API Key or Secret is not defined in environment variables.");
+    }
+    const message = timestamp + BYBIT_API_KEY + "5000" + params;
+    return CryptoJS.HmacSHA256(message, BYBIT_API_SECRET).toString();
 }
 
 async function bybitRequest(endpoint: string, method: string = "GET", body?: any): Promise<BybitResponse> {
   const timestamp = Date.now().toString();
   let url = `${BYBIT_BASE_URL}${endpoint}`;
   let params = "";
+
+  if (!BYBIT_API_KEY || !BYBIT_API_SECRET) {
+    const errorResponse = {
+        retCode: 10001,
+        retMsg: "API key and secret are not configured.",
+        result: null,
+        time: Date.now()
+    };
+    console.error(errorResponse.retMsg);
+    return errorResponse as any;
+  }
 
   if (method === "GET" && body) {
     const queryParams = new URLSearchParams(body).toString();
