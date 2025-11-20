@@ -148,19 +148,19 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             height: 420,
             layout: {
                 background: { color: 'transparent' },
-                textColor: 'hsl(215.4, 16.3%, 56.9%)',
+                textColor: 'rgba(138, 144, 153, 1)',
             },
             grid: {
-                vertLines: { color: 'hsl(224, 33%, 15%)' },
-                horzLines: { color: 'hsl(224, 33%, 15%)' },
+                vertLines: { color: 'rgba(42, 46, 57, 1)' },
+                horzLines: { color: 'rgba(42, 46, 57, 1)' },
             },
             timeScale: {
-                borderColor: 'hsl(224, 33%, 15%)',
+                borderColor: 'rgba(42, 46, 57, 1)',
                 timeVisible: true,
                 secondsVisible: false,
             },
             rightPriceScale: {
-                borderColor: 'hsl(224, 33%, 15%)',
+                borderColor: 'rgba(42, 46, 57, 1)',
             },
         });
 
@@ -242,14 +242,19 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (!series) return;
     
         // Clear existing lines first
-        if (positionLinesRef.current.tp) series.removePriceLine(positionLinesRef.current.tp);
-        if (positionLinesRef.current.sl) series.removePriceLine(positionLinesRef.current.sl);
-        if (positionLinesRef.current.entry) series.removePriceLine(positionLinesRef.current.entry);
+        if (positionLinesRef.current.tp) {
+            series.removePriceLine(positionLinesRef.current.tp);
+            positionLinesRef.current.tp = null;
+        }
+        if (positionLinesRef.current.sl) {
+            series.removePriceLine(positionLinesRef.current.sl);
+            positionLinesRef.current.sl = null;
+        }
+        if (positionLinesRef.current.entry) {
+            series.removePriceLine(positionLinesRef.current.entry);
+            positionLinesRef.current.entry = null;
+        }
         
-        positionLinesRef.current.tp = null;
-        positionLinesRef.current.sl = null;
-        positionLinesRef.current.entry = null;
-
         // Draw new lines
         if (takeProfit) {
             positionLinesRef.current.tp = series.createPriceLine({
