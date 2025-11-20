@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -114,7 +112,7 @@ export function CandlestickChart() {
             if (retracementLinesRef.current.line50) series.removePriceLine(retracementLinesRef.current.line50);
             retracementLinesRef.current.line50 = series.createPriceLine({
                 price: level50,
-                color: 'rgba(255, 193, 7, 0.5)',
+                color: 'rgba(156, 163, 175, 0.4)',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dotted,
                 axisLabelVisible: true,
@@ -124,7 +122,7 @@ export function CandlestickChart() {
             if (retracementLinesRef.current.line618) series.removePriceLine(retracementLinesRef.current.line618);
             retracementLinesRef.current.line618 = series.createPriceLine({
                 price: level618,
-                color: 'rgba(3, 169, 244, 0.5)',
+                color: 'rgba(156, 163, 175, 0.4)',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dotted,
                 axisLabelVisible: true,
@@ -151,34 +149,34 @@ export function CandlestickChart() {
             height: 420,
             layout: {
                 background: { color: 'transparent' },
-                textColor: '#94a3b8',
+                textColor: '#9ca3af',
                 fontSize: 10,
             },
             grid: {
-                vertLines: { color: 'rgba(42, 46, 57, 1)' },
-                horzLines: { color: 'rgba(42, 46, 57, 1)' },
+                vertLines: { color: 'hsl(220 13% 22%)' },
+                horzLines: { color: 'hsl(220 13% 22%)' },
             },
             timeScale: {
-                borderColor: 'rgba(42, 46, 57, 1)',
+                borderColor: 'hsl(220 13% 22%)',
                 timeVisible: true,
                 secondsVisible: false,
             },
             rightPriceScale: {
-                borderColor: 'rgba(42, 46, 57, 1)',
+                borderColor: 'hsl(220 13% 22%)',
             },
         });
 
         const series = chart.addCandlestickSeries({
-            upColor: '#22c55e',
-            downColor: '#ef4444',
-            borderDownColor: '#ef4444',
-            borderUpColor: '#22c55e',
-            wickDownColor: '#ef4444',
-            wickUpColor: '#22c55e',
+            upColor: '#e2e8f0',
+            downColor: '#475569',
+            borderDownColor: '#475569',
+            borderUpColor: '#e2e8f0',
+            wickDownColor: '#475569',
+            wickUpColor: '#e2e8f0',
         });
         
         const maSeries = chart.addLineSeries({
-            color: 'rgba(255, 165, 0, 0.8)',
+            color: 'rgba(203, 213, 225, 0.6)',
             lineWidth: 1,
             lastValueVisible: false,
             priceLineVisible: false,
@@ -263,7 +261,7 @@ export function CandlestickChart() {
         if (takeProfit) {
             positionLinesRef.current.tp = series.createPriceLine({
                 price: takeProfit,
-                color: '#22c55e',
+                color: '#94a3b8',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
@@ -273,7 +271,7 @@ export function CandlestickChart() {
         if (stopLoss) {
             positionLinesRef.current.sl = series.createPriceLine({
                 price: stopLoss,
-                color: '#ef4444',
+                color: '#64748b',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
@@ -301,7 +299,7 @@ export function CandlestickChart() {
                 <div className="flex items-baseline gap-4">
                     <CardTitle>BTC/USD</CardTitle>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-lg font-light">
+                        <span className="text-base font-light">
                             {ticker ? parseFloat(ticker.lastPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : <Skeleton className="h-6 w-20" />}
                         </span>
                         <span className={cn("text-xs font-light flex items-center", priceChangePercent >= 0 ? "text-positive" : "text-negative")}>
@@ -317,7 +315,7 @@ export function CandlestickChart() {
                 {marketSentiment && (
                     <div
                         className={cn(
-                            "absolute top-2 left-2 z-10 rounded-md px-2 py-1 text-xs font-light text-primary-foreground",
+                            "absolute top-2 left-2 z-10 rounded-md px-2 py-1 text-xs font-light text-background",
                             marketSentiment === 'Bullish' ? 'bg-positive/80' : 'bg-negative/80'
                         )}
                     >

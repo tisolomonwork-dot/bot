@@ -9,9 +9,9 @@ import type { ActionableInsightsOutput } from '@/ai/flows/ai-provide-actionable-
 import { Skeleton } from '../ui/skeleton';
 
 const riskColorMap = {
-  low: "bg-green-500/20 text-green-400 border-green-500/30",
-  medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  high: "bg-red-500/20 text-red-400 border-red-500/30",
+  low: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+  medium: "bg-gray-500/20 text-gray-300 border-gray-500/30",
+  high: "bg-gray-500/20 text-gray-200 border-gray-500/30",
 };
 
 
@@ -59,7 +59,7 @@ export function AiOpinionCard() {
     return (
       <Card>
         <CardHeader>
-             <CardTitle className="flex items-center gap-2 text-primary">
+             <CardTitle className="flex items-center gap-2 text-card-foreground">
                 <Bot className="h-5 w-5" />
                 A.I. Opinion
             </CardTitle>
@@ -76,10 +76,10 @@ export function AiOpinionCard() {
         <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
             <CardTitle className="flex items-center gap-2">
-            <Bot className="h-5 w-5 text-primary" />
+            <Bot className="h-5 w-5 text-card-foreground" />
             A.I. Opinion
             </CardTitle>
-            {loading && <CircleDashed className="h-4 w-4 animate-spin text-primary" />}
+            {loading && <CircleDashed className="h-4 w-4 animate-spin text-muted-foreground" />}
         </div>
         <CardDescription className="text-balance">
             {insights.marketMood && `Market mood is currently ${insights.marketMood}.`} Here are your top suggested actions.
@@ -90,7 +90,7 @@ export function AiOpinionCard() {
             {insights.suggestedActions.slice(0, 3).map((item, index) => (
             <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
-                    <Zap className="h-4 w-4 text-primary/80" />
+                    <Zap className="h-4 w-4 text-muted-foreground" />
                     <div className="flex flex-col">
                         <p className="text-xs font-normal">{item.action}</p>
                         <p className="text-xs text-muted-foreground">{item.rationale}</p>

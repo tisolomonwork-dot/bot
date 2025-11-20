@@ -40,17 +40,17 @@ export function ActiveTrade() {
     }, []);
 
   if (loading) {
-    return <Skeleton className="h-40" />;
+    return <Skeleton className="h-[92px] rounded-lg" />;
   }
 
   if (!btcPosition) {
     return (
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-4">
             <CardTitle>Active BTCUSDT Trade</CardTitle>
             <CardDescription>Your current open position for Bitcoin.</CardDescription>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-24">
+        <CardContent className="flex items-center justify-center pb-4">
             <p className="text-sm text-muted-foreground">No active BTCUSDT position.</p>
         </CardContent>
       </Card>
@@ -63,14 +63,14 @@ export function ActiveTrade() {
 
   return (
     <Card>
-        <CardHeader>
-            <CardTitle className="text-base font-normal">Active BTCUSDT Trade</CardTitle>
+        <CardHeader className="pb-4">
+            <CardTitle>Active BTCUSDT Trade</CardTitle>
             <CardDescription>Your current open position for Bitcoin.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-xs">
+        <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-xs pb-4">
             <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Side</p>
-                <Badge variant={btcPosition.side === 'Buy' ? 'default' : 'destructive'} className={cn('w-fit', btcPosition.side === 'Buy' ? 'bg-positive/20 text-positive border-positive/30' : 'bg-negative/20 text-negative border-negative/30')}>
+                <Badge variant={btcPosition.side === 'Buy' ? 'default' : 'destructive'} className={cn('w-fit font-normal text-xs', btcPosition.side === 'Buy' ? 'bg-positive/20 text-positive border-positive/30' : 'bg-negative/20 text-negative border-negative/30')}>
                     {btcPosition.side}
                 </Badge>
             </div>

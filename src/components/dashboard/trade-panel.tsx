@@ -77,7 +77,7 @@ export function TradePanel() {
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
               name="side"
@@ -90,8 +90,8 @@ export function TradePanel() {
                       className="grid grid-cols-2"
                     >
                       <TabsList className="w-full grid grid-cols-2">
-                        <TabsTrigger value="Buy" className="data-[state=active]:bg-positive/80 data-[state=active]:text-primary-foreground">Long</TabsTrigger>
-                        <TabsTrigger value="Sell" className="data-[state=active]:bg-negative/80 data-[state=active]:text-primary-foreground">Short</TabsTrigger>
+                        <TabsTrigger value="Buy" className="data-[state=active]:bg-positive/80 data-[state=active]:text-background">Long</TabsTrigger>
+                        <TabsTrigger value="Sell" className="data-[state=active]:bg-negative/80 data-[state=active]:text-background">Short</TabsTrigger>
                       </TabsList>
                     </Tabs>
                   </FormControl>
@@ -144,8 +144,8 @@ export function TradePanel() {
               type="submit"
               size="lg"
               className={cn(
-                "w-full text-base font-medium",
-                side === "Buy" ? "bg-positive hover:bg-positive/90 text-background" : "bg-negative hover:bg-negative/90 text-background"
+                "w-full text-sm font-normal",
+                side === "Buy" ? "bg-positive/90 hover:bg-positive/80 text-background" : "bg-negative/90 hover:bg-negative/80 text-background"
               )}
               disabled={form.formState.isSubmitting}
             >
