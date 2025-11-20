@@ -6,7 +6,7 @@
 // Security is handled by Firestore Security Rules and not by keeping
 // this configuration private.
 export const firebaseConfig = {
-  apiKey: 'mock-api-key',
+  apiKey: 'REDACTED',
   authDomain: 'aethermind-trading-dev.firebaseapp.com',
   projectId: 'aethermind-trading-dev',
   storageBucket: 'aethermind-trading-dev.appspot.com',
