@@ -46,23 +46,23 @@ export function BalancePnl() {
     <>
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Total Balance</CardTitle>
-                 <span className="text-muted-foreground">USD</span>
+                <CardTitle className="text-sm font-normal text-muted-foreground">Total Balance</CardTitle>
+                 <span className="text-xs text-muted-foreground">USD</span>
             </CardHeader>
             <CardContent>
-                <div className="text-2xl font-medium">
-                    {balance !== null ? balance.toLocaleString("en-US", { style: "currency", currency: "USD" }) : <CircleDashed className="h-8 w-8 animate-spin" />}
+                <div className="text-xl font-normal">
+                    {balance !== null ? balance.toLocaleString("en-US", { style: "currency", currency: "USD" }) : <CircleDashed className="h-6 w-6 animate-spin" />}
                 </div>
             </CardContent>
         </Card>
         <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Unrealized P&L</CardTitle>
+                <CardTitle className="text-sm font-normal text-muted-foreground">Unrealized P&L</CardTitle>
                 {totalPnl === null ? <CircleDashed className="h-4 w-4 animate-spin" /> : totalPnl >= 0 ? <TrendingUp className="h-4 w-4 text-positive" /> : <TrendingDown className="h-4 w-4 text-negative" />}
             </CardHeader>
             <CardContent>
-                <div className={cn("text-2xl font-medium", totalPnl === null ? "" : totalPnl >= 0 ? "text-positive" : "text-negative")}>
-                    {totalPnl !== null ? totalPnl.toLocaleString("en-US", { style: "currency", currency: "USD" }) : <CircleDashed className="h-8 w-8 animate-spin" />}
+                <div className={cn("text-xl font-normal", totalPnl === null ? "" : totalPnl >= 0 ? "text-positive" : "text-negative")}>
+                    {totalPnl !== null ? totalPnl.toLocaleString("en-US", { style: "currency", currency: "USD" }) : <CircleDashed className="h-6 w-6 animate-spin" />}
                 </div>
             </CardContent>
         </Card>

@@ -44,12 +44,12 @@ export function AiOpinionCard() {
     return (
         <Card>
             <CardHeader>
-                <Skeleton className="h-6 w-1/3" />
-                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-5 w-1/3" />
+                <Skeleton className="h-3 w-1/2" />
             </CardHeader>
             <CardContent className="space-y-4">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-8 w-full" />
+                <Skeleton className="h-8 w-full" />
             </CardContent>
         </Card>
     );
@@ -60,7 +60,7 @@ export function AiOpinionCard() {
       <Card>
         <CardHeader>
              <CardTitle className="flex items-center gap-2 text-primary">
-                <Bot className="h-6 w-6" />
+                <Bot className="h-5 w-5" />
                 A.I. Opinion
             </CardTitle>
         </CardHeader>
@@ -76,10 +76,10 @@ export function AiOpinionCard() {
         <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
             <CardTitle className="flex items-center gap-2">
-            <Bot className="h-6 w-6 text-primary" />
+            <Bot className="h-5 w-5 text-primary" />
             A.I. Opinion
             </CardTitle>
-            {loading && <CircleDashed className="h-5 w-5 animate-spin text-primary" />}
+            {loading && <CircleDashed className="h-4 w-4 animate-spin text-primary" />}
         </div>
         <CardDescription className="text-balance">
             {insights.marketMood && `Market mood is currently ${insights.marketMood}.`} Here are your top suggested actions.
@@ -90,9 +90,9 @@ export function AiOpinionCard() {
             {insights.suggestedActions.slice(0, 3).map((item, index) => (
             <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
-                    <Zap className="h-5 w-5 text-primary/80" />
+                    <Zap className="h-4 w-4 text-primary/80" />
                     <div className="flex flex-col">
-                        <p className="text-sm font-medium">{item.action}</p>
+                        <p className="text-xs font-normal">{item.action}</p>
                         <p className="text-xs text-muted-foreground">{item.rationale}</p>
                     </div>
                 </div>

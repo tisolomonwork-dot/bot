@@ -151,7 +151,8 @@ export function CandlestickChart() {
             height: 420,
             layout: {
                 background: { color: 'transparent' },
-                textColor: 'rgba(138, 144, 153, 1)',
+                textColor: 'hsl(var(--muted-foreground))',
+                fontSize: 10,
             },
             grid: {
                 vertLines: { color: 'rgba(42, 46, 57, 1)' },
@@ -178,7 +179,7 @@ export function CandlestickChart() {
         
         const maSeries = chart.addLineSeries({
             color: 'rgba(255, 165, 0, 0.8)',
-            lineWidth: 2,
+            lineWidth: 1,
             lastValueVisible: false,
             priceLineVisible: false,
         });
@@ -300,23 +301,23 @@ export function CandlestickChart() {
                 <div className="flex items-baseline gap-4">
                     <CardTitle>BTC/USD</CardTitle>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-xl font-medium">
-                            {ticker ? parseFloat(ticker.lastPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : <Skeleton className="h-7 w-24" />}
+                        <span className="text-lg font-normal">
+                            {ticker ? parseFloat(ticker.lastPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : <Skeleton className="h-6 w-20" />}
                         </span>
-                        <span className={cn("text-sm font-medium flex items-center", priceChangePercent >= 0 ? "text-positive" : "text-negative")}>
-                            <TrendingUp className={cn("h-4 w-4 mr-1", priceChangePercent < 0 && "rotate-180")} />
+                        <span className={cn("text-xs font-normal flex items-center", priceChangePercent >= 0 ? "text-positive" : "text-negative")}>
+                            <TrendingUp className={cn("h-3 w-3 mr-1", priceChangePercent < 0 && "rotate-180")} />
                             {priceChangePercent.toFixed(2)}%
                         </span>
                     </div>
                 </div>
-                 <span className="text-sm text-muted-foreground">30m</span>
+                 <span className="text-xs text-muted-foreground">30m</span>
             </CardHeader>
             <CardContent className="pt-0 h-[420px] relative">
                 {loading && <Skeleton className="absolute inset-0 h-full w-full" />}
                 {marketSentiment && (
                     <div
                         className={cn(
-                            "absolute top-2 left-2 z-10 rounded-md px-2 py-1 text-xs font-semibold text-primary-foreground",
+                            "absolute top-2 left-2 z-10 rounded-md px-2 py-1 text-xs font-normal text-primary-foreground",
                             marketSentiment === 'Bullish' ? 'bg-positive/80' : 'bg-negative/80'
                         )}
                     >
