@@ -4,19 +4,13 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { createChart, type IChartApi, type ISeriesApi, type Time, type IPriceLine, LineStyle } from 'lightweight-charts';
-import { getKlines, getTickers } from "@/lib/services/bybit-service";
+import { getKlines, getTickers, getPositions } from "@/lib/services/bybit-service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '@/lib/utils';
 import { TrendingUp } from 'lucide-react';
 
-interface CandlestickChartProps {
-    takeProfit?: number;
-    stopLoss?: number;
-    entryPrice?: number;
-}
-
-export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: CandlestickChartProps) {
+export function CandlestickChart() {
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartApiRef = useRef<IChartApi | null>(null);
     const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
@@ -26,9 +20,14 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
 
     const [loading, setLoading] = useState(true);
     const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
+    const [position, setPosition] = useState<any>(null);
     
     const [marketSentiment, setMarketSentiment] = useState<'Bullish' | 'Bearish' | null>(null);
     const [priceProximityEmoji, setPriceProximityEmoji] = useState<string | null>(null);
+
+    const takeProfit = position?.takeProfit ? parseFloat(position.takeProfit) : undefined;
+    const stopLoss = position?.stopLoss ? parseFloat(position.stopLoss) : undefined;
+    const entryPrice = position?.avgPrice ? parseFloat(position.avgPrice) : undefined;
 
     const handleResize = useCallback(() => {
         if (chartApiRef.current && chartContainerRef.current) {
@@ -60,7 +59,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         const series = candlestickSeriesRef.current;
         const maSeries = ma200SeriesRef.current;
 
-        const [klinesData, tickerData] = await Promise.all([
+        const [klinesData, tickerData, positionsData] = await Promise.all([
             getKlines({
                 category: 'linear',
                 symbol: 'BTCUSDT',
@@ -68,8 +67,12 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 limit: 300,
             }),
             getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
+            getPositions(),
         ]);
         
+        const btcPosition = positionsData.find(p => p.symbol === 'BTCUSDT');
+        setPosition(btcPosition);
+
         if (klinesData && klinesData.length > 0) {
             const formattedData = klinesData.map(d => ({
                 time: (new Date(d.date).getTime() / 1000) as Time,

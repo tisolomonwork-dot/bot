@@ -17,13 +17,9 @@ type BtcPosition = {
     stopLoss?: string;
 } | undefined;
 
-interface ActiveTradeProps {
-    btcPosition: BtcPosition;
-}
-
-export function ActiveTrade({ btcPosition: initialPosition }: ActiveTradeProps) {
-    const [btcPosition, setBtcPosition] = useState<BtcPosition>(initialPosition);
-    const [loading, setLoading] = useState(!initialPosition);
+export function ActiveTrade() {
+    const [btcPosition, setBtcPosition] = useState<BtcPosition>(undefined);
+    const [loading, setLoading] = useState(true);
 
     const fetchBtcPosition = async () => {
         try {
@@ -33,14 +29,12 @@ export function ActiveTrade({ btcPosition: initialPosition }: ActiveTradeProps) 
         } catch (error) {
             console.error("Failed to fetch active trade:", error);
         } finally {
-            if (loading) {
-                setLoading(false);
-            }
+            setLoading(false);
         }
     }
 
     useEffect(() => {
-        // We still fetch to get live PnL updates, but we have the initial state
+        fetchBtcPosition();
         const interval = setInterval(fetchBtcPosition, 5000);
         return () => clearInterval(interval);
     }, []);
