@@ -51,7 +51,7 @@ export function ActiveTrade({ btcPosition: initialPosition }: ActiveTradeProps) 
 
   if (!btcPosition) {
     return (
-      <Card className="lg:col-span-3 bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
+      <Card className="lg:col-span-3">
         <CardHeader>
             <CardTitle>Active BTCUSDT Trade</CardTitle>
             <CardDescription>Your current open position for Bitcoin.</CardDescription>
@@ -68,7 +68,7 @@ export function ActiveTrade({ btcPosition: initialPosition }: ActiveTradeProps) 
   const stopLoss = btcPosition.stopLoss ? parseFloat(btcPosition.stopLoss) : null;
 
   return (
-    <Card className="lg:col-span-3 bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
+    <Card className="lg:col-span-3">
         <CardHeader>
             <CardTitle>Active BTCUSDT Trade</CardTitle>
             <CardDescription>Your current open position for Bitcoin.</CardDescription>

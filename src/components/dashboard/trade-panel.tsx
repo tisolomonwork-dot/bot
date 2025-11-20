@@ -71,7 +71,7 @@ export function TradePanel() {
   const side = form.watch("side");
 
   return (
-    <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
+    <Card>
       <CardHeader>
         <CardTitle>Trade</CardTitle>
       </CardHeader>

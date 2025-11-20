@@ -9,9 +9,9 @@ import type { ActionableInsightsOutput } from '@/ai/flows/ai-provide-actionable-
 import { Skeleton } from '../ui/skeleton';
 
 const riskColorMap = {
-  low: "bg-green-500/20 text-green-700 border-green-500/30",
-  medium: "bg-yellow-500/20 text-yellow-700 border-yellow-500/30",
-  high: "bg-red-500/20 text-red-700 border-red-500/30",
+  low: "bg-green-500/20 text-green-400 border-green-500/30",
+  medium: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+  high: "bg-red-500/20 text-red-400 border-red-500/30",
 };
 
 
@@ -42,7 +42,7 @@ export function AiOpinionCard() {
 
   if (loading && !insights) {
     return (
-        <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
+        <Card>
             <CardHeader>
                 <Skeleton className="h-6 w-1/3" />
                 <Skeleton className="h-4 w-1/2" />
@@ -57,7 +57,7 @@ export function AiOpinionCard() {
 
   if (!insights) {
     return (
-      <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
+      <Card>
         <CardHeader>
              <CardTitle className="flex items-center gap-2 text-primary">
                 <Bot className="h-6 w-6" />
@@ -72,11 +72,11 @@ export function AiOpinionCard() {
   }
 
   return (
-    <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
+    <Card>
         <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
-            <CardTitle className="flex items-center gap-2 text-primary">
-            <Bot className="h-6 w-6" />
+            <CardTitle className="flex items-center gap-2">
+            <Bot className="h-6 w-6 text-primary" />
             A.I. Opinion
             </CardTitle>
             {loading && <CircleDashed className="h-5 w-5 animate-spin text-primary" />}
@@ -88,7 +88,7 @@ export function AiOpinionCard() {
         </CardHeader>
         <CardContent className="grid gap-3">
             {insights.suggestedActions.slice(0, 3).map((item, index) => (
-            <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-primary/5 transition-colors">
+            <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
                     <Zap className="h-5 w-5 text-primary/80" />
                     <div className="flex flex-col">

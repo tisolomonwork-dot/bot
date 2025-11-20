@@ -99,14 +99,13 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             
             let level50, level618;
 
-            if (currentSentiment === 'Bullish') {
-                level50 = recentHigh - range * 0.5;
-                level618 = recentHigh - range * 0.618;
-            } else {
-                level50 = recentLow + range * 0.5;
-                level618 = recentLow + range * 0.618;
+            if (currentSentiment === 'Bullish') { // Above 200MA, pullback from high
+                level50 = recentHigh - (range * 0.5);
+                level618 = recentHigh - (range * 0.618);
+            } else { // Bearish, below 200MA, rally from low
+                level50 = recentLow + (range * 0.5);
+                level618 = recentLow + (range * 0.618);
             }
-
             
             if (retracementLinesRef.current.line50) series.removePriceLine(retracementLinesRef.current.line50);
             retracementLinesRef.current.line50 = series.createPriceLine({
@@ -148,29 +147,29 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             height: 420,
             layout: {
                 background: { color: 'transparent' },
-                textColor: 'rgba(209, 213, 219, 1)',
+                textColor: 'hsl(var(--muted-foreground))',
             },
             grid: {
-                vertLines: { color: 'rgba(41, 45, 59, 0.5)' },
-                horzLines: { color: 'rgba(41, 45, 59, 0.5)' },
+                vertLines: { color: 'hsl(var(--border))' },
+                horzLines: { color: 'hsl(var(--border))' },
             },
             timeScale: {
-                borderColor: 'rgba(41, 45, 59, 1)',
+                borderColor: 'hsl(var(--border))',
                 timeVisible: true,
                 secondsVisible: false,
             },
             rightPriceScale: {
-                borderColor: 'rgba(41, 45, 59, 1)',
+                borderColor: 'hsl(var(--border))',
             },
         });
 
         const series = chart.addCandlestickSeries({
-            upColor: 'rgba(57, 166, 103, 1)',
-            downColor: 'rgba(215, 84, 84, 1)',
-            borderDownColor: 'rgba(215, 84, 84, 1)',
-            borderUpColor: 'rgba(57, 166, 103, 1)',
-            wickDownColor: 'rgba(215, 84, 84, 1)',
-            wickUpColor: 'rgba(57, 166, 103, 1)',
+            upColor: 'hsl(var(--positive))',
+            downColor: 'hsl(var(--negative))',
+            borderDownColor: 'hsl(var(--negative))',
+            borderUpColor: 'hsl(var(--positive))',
+            wickDownColor: 'hsl(var(--negative))',
+            wickUpColor: 'hsl(var(--positive))',
         });
         
         const maSeries = chart.addLineSeries({
@@ -241,44 +240,36 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         const series = candlestickSeriesRef.current;
         if (!series) return;
     
-        if (positionLinesRef.current.tp) {
-            series.removePriceLine(positionLinesRef.current.tp);
-            positionLinesRef.current.tp = null;
-        }
+        // Clear existing lines first
+        if (positionLinesRef.current.tp) series.removePriceLine(positionLinesRef.current.tp);
+        if (positionLinesRef.current.sl) series.removePriceLine(positionLinesRef.current.sl);
+        if (positionLinesRef.current.entry) series.removePriceLine(positionLinesRef.current.entry);
+    
+        // Draw new lines
         if (takeProfit) {
             positionLinesRef.current.tp = series.createPriceLine({
                 price: takeProfit,
-                color: 'rgba(57, 166, 103, 1)',
+                color: 'hsl(var(--positive))',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
                 title: 'TP',
             });
         }
-    
-        if (positionLinesRef.current.sl) {
-            series.removePriceLine(positionLinesRef.current.sl);
-            positionLinesRef.current.sl = null;
-        }
         if (stopLoss) {
             positionLinesRef.current.sl = series.createPriceLine({
                 price: stopLoss,
-                color: 'rgba(215, 84, 84, 1)',
+                color: 'hsl(var(--negative))',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
                 title: 'SL',
             });
         }
-    
-        if (positionLinesRef.current.entry) {
-            series.removePriceLine(positionLinesRef.current.entry);
-            positionLinesRef.current.entry = null;
-        }
         if (entryPrice) {
             positionLinesRef.current.entry = series.createPriceLine({
                 price: entryPrice,
-                color: 'rgba(255, 255, 255, 0.7)',
+                color: 'hsl(var(--foreground))',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dotted,
                 axisLabelVisible: true,
@@ -286,11 +277,12 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             });
         }
     }, [takeProfit, stopLoss, entryPrice]);
+    
 
     const priceChangePercent = ticker ? parseFloat(ticker.price24hPcnt) * 100 : 0;
 
     return (
-        <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5 h-full">
+        <Card className="h-full">
            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                 <div className="flex items-baseline gap-4">
                     <CardTitle>BTC/USD</CardTitle>
