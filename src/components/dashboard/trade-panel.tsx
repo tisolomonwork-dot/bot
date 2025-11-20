@@ -144,7 +144,7 @@ export function TradePanel() {
               type="submit"
               size="lg"
               className={cn(
-                "w-full text-lg font-semibold",
+                "w-full text-base font-medium",
                 side === "Buy" ? "bg-positive hover:bg-positive/90 text-background" : "bg-negative hover:bg-negative/90 text-background"
               )}
               disabled={form.formState.isSubmitting}

@@ -300,8 +300,8 @@ export function CandlestickChart() {
                 <div className="flex items-baseline gap-4">
                     <CardTitle>BTC/USD</CardTitle>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-bold">
-                            {ticker ? parseFloat(ticker.lastPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : <Skeleton className="h-8 w-24" />}
+                        <span className="text-xl font-medium">
+                            {ticker ? parseFloat(ticker.lastPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : <Skeleton className="h-7 w-24" />}
                         </span>
                         <span className={cn("text-sm font-medium flex items-center", priceChangePercent >= 0 ? "text-positive" : "text-negative")}>
                             <TrendingUp className={cn("h-4 w-4 mr-1", priceChangePercent < 0 && "rotate-180")} />

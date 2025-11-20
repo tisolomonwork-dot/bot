@@ -40,12 +40,12 @@ export function ActiveTrade() {
     }, []);
 
   if (loading) {
-    return <Skeleton className="h-40 lg:col-span-3" />;
+    return <Skeleton className="h-40" />;
   }
 
   if (!btcPosition) {
     return (
-      <Card className="lg:col-span-3">
+      <Card>
         <CardHeader>
             <CardTitle>Active BTCUSDT Trade</CardTitle>
             <CardDescription>Your current open position for Bitcoin.</CardDescription>
@@ -62,12 +62,12 @@ export function ActiveTrade() {
   const stopLoss = btcPosition.stopLoss ? parseFloat(btcPosition.stopLoss) : null;
 
   return (
-    <Card className="lg:col-span-3">
+    <Card>
         <CardHeader>
             <CardTitle>Active BTCUSDT Trade</CardTitle>
             <CardDescription>Your current open position for Bitcoin.</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-3 md:grid-cols-6 gap-4 text-sm">
+        <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-sm">
             <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Side</p>
                 <Badge variant={btcPosition.side === 'Buy' ? 'default' : 'destructive'} className={cn('w-fit', btcPosition.side === 'Buy' ? 'bg-positive/20 text-positive border-positive/30' : 'bg-negative/20 text-negative border-negative/30')}>
@@ -76,23 +76,23 @@ export function ActiveTrade() {
             </div>
             <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Size</p>
-                <p className="text-lg font-semibold">{btcPosition.size} BTC</p>
+                <p className="text-base font-medium">{btcPosition.size} BTC</p>
             </div>
             <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Entry Price</p>
-                <p className="text-lg font-semibold">{parseFloat(btcPosition.avgPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
+                <p className="text-base font-medium">{parseFloat(btcPosition.avgPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
             </div>
              <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Take Profit</p>
-                <p className="text-lg font-semibold">{takeProfit ? takeProfit.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'N/A'}</p>
+                <p className="text-base font-medium">{takeProfit ? takeProfit.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'N/A'}</p>
             </div>
              <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Stop Loss</p>
-                <p className="text-lg font-semibold">{stopLoss ? stopLoss.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'N/A'}</p>
+                <p className="text-base font-medium">{stopLoss ? stopLoss.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'N/A'}</p>
             </div>
             <div className="flex flex-col gap-1">
                 <p className="text-muted-foreground">Unrealized PnL</p>
-                <p className={cn("text-lg font-semibold", pnl >= 0 ? "text-positive" : "text-negative")}>{pnl.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
+                <p className={cn("text-base font-medium", pnl >= 0 ? "text-positive" : "text-negative")}>{pnl.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</p>
             </div>
         </CardContent>
     </Card>
