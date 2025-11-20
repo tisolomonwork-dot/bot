@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Wallet, CandlestickChart, Settings } from 'lucide-react';
+import { Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const menuItems = [
@@ -9,18 +9,6 @@ const menuItems = [
     description: 'View your trading dashboard.',
     href: '/investments',
     icon: <Wallet className="h-8 w-8 text-primary" />,
-  },
-  {
-    title: 'Strategies',
-    description: 'Analyze market strategies.',
-    href: '/strategies',
-    icon: <CandlestickChart className="h-8 w-8 text-primary" />,
-  },
-  {
-    title: 'Settings',
-    description: 'Configure your account.',
-    href: '/settings',
-    icon: <Settings className="h-8 w-8 text-primary" />,
   },
 ];
 
