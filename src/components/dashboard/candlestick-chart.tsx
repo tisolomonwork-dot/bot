@@ -79,13 +79,35 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             }));
             series.setData(formattedData);
 
+            const ma200Data = calculateMA(formattedData, 200);
+            maSeries.setData(ma200Data);
+
+            const lastPrice = formattedData[formattedData.length - 1]?.close;
+            const lastMa200 = ma200Data.filter(d => !isNaN(d.value)).pop()?.value;
+
+            let currentSentiment: 'Bullish' | 'Bearish' | null = null;
+            if (lastPrice && lastMa200) {
+                currentSentiment = lastPrice > lastMa200 ? 'Bullish' : 'Bearish';
+                setMarketSentiment(currentSentiment);
+            } else {
+                setMarketSentiment(null);
+            }
+
             const recentLow = Math.min(...formattedData.slice(-50).map(d => d.low));
             const recentHigh = Math.max(...formattedData.slice(-50).map(d => d.high));
             const range = recentHigh - recentLow;
             
-            // Correct Fibonacci Retracement for uptrend pullback
-            const level50 = recentHigh - range * 0.5;
-            const level618 = recentHigh - range * 0.618;
+            let level50, level618;
+
+            if (currentSentiment === 'Bullish') {
+                // Uptrend pullback: levels are below the high
+                level50 = recentHigh - range * 0.5;
+                level618 = recentHigh - range * 0.618;
+            } else {
+                // Downtrend bounce: levels are above the low
+                level50 = recentLow + range * 0.5;
+                level618 = recentLow + range * 0.618;
+            }
             
             if (retracementLinesRef.current.line50) series.removePriceLine(retracementLinesRef.current.line50);
             retracementLinesRef.current.line50 = series.createPriceLine({
@@ -106,18 +128,6 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: '61.8%',
             });
-
-            const ma200Data = calculateMA(formattedData, 200);
-            maSeries.setData(ma200Data);
-
-            const lastPrice = formattedData[formattedData.length - 1]?.close;
-            const lastMa200 = ma200Data.filter(d => !isNaN(d.value)).pop()?.value;
-
-            if (lastPrice && lastMa200) {
-                setMarketSentiment(lastPrice > lastMa200 ? 'Bullish' : 'Bearish');
-            } else {
-                setMarketSentiment(null);
-            }
 
             chartApiRef.current?.timeScale().fitContent();
         }
