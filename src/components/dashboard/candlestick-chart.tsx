@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -21,7 +20,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const chartApiRef = useRef<IChartApi | null>(null);
     const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
     const ma200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
-    const retracementLinesRef = useRef<{ line50: IPriceLine | null, line60: IPriceLine | null }>({ line50: null, line60: null });
+    const retracementLinesRef = useRef<{ line50: IPriceLine | null, line62: IPriceLine | null }>({ line50: null, line62: null });
     const positionLinesRef = useRef<{ tp: IPriceLine | null, sl: IPriceLine | null, entry: IPriceLine | null }>({ tp: null, sl: null, entry: null });
 
     const [loading, setLoading] = useState(true);
@@ -83,8 +82,10 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             const recentLow = Math.min(...formattedData.slice(-50).map(d => d.low));
             const recentHigh = Math.max(...formattedData.slice(-50).map(d => d.high));
             const range = recentHigh - recentLow;
-            const level50 = recentLow + range * 0.5;
-            const level60 = recentLow + range * 0.6;
+            
+            // Correct Fibonacci Retracement for uptrend pullback
+            const level50 = recentHigh - range * 0.5;
+            const level618 = recentHigh - range * 0.618;
             
             if (retracementLinesRef.current.line50) series.removePriceLine(retracementLinesRef.current.line50);
             retracementLinesRef.current.line50 = series.createPriceLine({
@@ -96,14 +97,14 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 title: '50%',
             });
             
-            if (retracementLinesRef.current.line60) series.removePriceLine(retracementLinesRef.current.line60);
-            retracementLinesRef.current.line60 = series.createPriceLine({
-                price: level60,
+            if (retracementLinesRef.current.line62) series.removePriceLine(retracementLinesRef.current.line62);
+            retracementLinesRef.current.line62 = series.createPriceLine({
+                price: level618,
                 color: 'rgba(3, 169, 244, 0.5)',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dotted,
                 axisLabelVisible: true,
-                title: '60%',
+                title: '61.8%',
             });
 
             const ma200Data = calculateMA(formattedData, 200);
@@ -185,7 +186,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             chart.remove();
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [fetchData, handleResize]);
 
 
     useEffect(() => {
@@ -316,9 +317,3 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         </Card>
     );
 }
-
-    
-
-    
-
-
