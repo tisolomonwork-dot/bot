@@ -27,6 +27,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const [entryLine, setEntryLine] = useState<IPriceLine | null>(null);
     const [retracement50Line, setRetracement50Line] = useState<IPriceLine | null>(null);
     const [retracement60Line, setRetracement60Line] = useState<IPriceLine | null>(null);
+    const [marketSentiment, setMarketSentiment] = useState<'Bullish' | 'Bearish' | null>(null);
 
     const handleResize = useCallback(() => {
         if (chartApiRef.current && chartContainerRef.current) {
@@ -86,32 +87,39 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             const level50 = recentLow + range * 0.5;
             const level60 = recentLow + range * 0.6;
             
-            setRetracement50Line(prevLine => {
-                if (prevLine) series.removePriceLine(prevLine);
-                return series.createPriceLine({
-                    price: level50,
-                    color: 'rgba(255, 193, 7, 0.5)',
-                    lineWidth: 1,
-                    lineStyle: LineStyle.Dotted,
-                    axisLabelVisible: true,
-                    title: '50%',
-                });
+            if (retracement50Line) series.removePriceLine(retracement50Line);
+            const new50Line = series.createPriceLine({
+                price: level50,
+                color: 'rgba(255, 193, 7, 0.5)',
+                lineWidth: 1,
+                lineStyle: LineStyle.Dotted,
+                axisLabelVisible: true,
+                title: '50%',
             });
-
-            setRetracement60Line(prevLine => {
-                if (prevLine) series.removePriceLine(prevLine);
-                return series.createPriceLine({
-                    price: level60,
-                    color: 'rgba(3, 169, 244, 0.5)',
-                    lineWidth: 1,
-                    lineStyle: LineStyle.Dotted,
-                    axisLabelVisible: true,
-                    title: '60%',
-                });
+            setRetracement50Line(new50Line);
+            
+            if (retracement60Line) series.removePriceLine(retracement60Line);
+            const new60Line = series.createPriceLine({
+                price: level60,
+                color: 'rgba(3, 169, 244, 0.5)',
+                lineWidth: 1,
+                lineStyle: LineStyle.Dotted,
+                axisLabelVisible: true,
+                title: '60%',
             });
+            setRetracement60Line(new60Line);
 
             const ma200Data = calculateMA(formattedData, 200);
             maSeries.setData(ma200Data);
+
+            const lastPrice = formattedData[formattedData.length - 1]?.close;
+            const lastMa200 = ma200Data.filter(d => !isNaN(d.value)).pop()?.value;
+
+            if (lastPrice && lastMa200) {
+                setMarketSentiment(lastPrice > lastMa200 ? 'Bullish' : 'Bearish');
+            } else {
+                setMarketSentiment(null);
+            }
 
             chartApiRef.current?.timeScale().fitContent();
         }
@@ -121,6 +129,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         }
         
         setLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
@@ -130,20 +139,20 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             width: chartContainerRef.current.clientWidth,
             height: 420,
             layout: {
-                background: { color: 'transparent' },
-                textColor: 'rgba(156, 163, 175, 1)',
+                background: { color: 'rgba(22, 24, 33, 1)' },
+                textColor: 'rgba(209, 213, 219, 1)',
             },
             grid: {
-                vertLines: { color: 'rgba(48, 54, 69, 0.5)' },
-                horzLines: { color: 'rgba(48, 54, 69, 0.5)' },
+                vertLines: { color: 'rgba(41, 45, 59, 1)' },
+                horzLines: { color: 'rgba(41, 45, 59, 1)' },
             },
             timeScale: {
-                borderColor: 'rgba(48, 54, 69, 1)',
+                borderColor: 'rgba(41, 45, 59, 1)',
                 timeVisible: true,
                 secondsVisible: false,
             },
             rightPriceScale: {
-                borderColor: 'rgba(48, 54, 69, 1)',
+                borderColor: 'rgba(41, 45, 59, 1)',
             },
         });
 
@@ -185,7 +194,14 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         const priceInterval = setInterval(async () => {
              const tickerData = await getTickers({ category: 'linear', symbol: 'BTCUSDT' });
              if (tickerData.length > 0) {
-                setTicker(tickerData[0]);
+                const newTicker = tickerData[0];
+                setTicker(newTicker);
+                
+                const lastPrice = parseFloat(newTicker.lastPrice);
+                candlestickSeriesRef.current?.update({
+                    time: (Date.now() / 1000) as Time,
+                    close: lastPrice,
+                });
             }
         }, 3000);
 
@@ -260,12 +276,20 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             </CardHeader>
             <CardContent className="pt-0 h-[420px] relative">
                 {loading && <Skeleton className="absolute inset-0 h-full w-full" />}
+                {marketSentiment && (
+                    <div
+                        className={cn(
+                            "absolute top-2 left-2 z-10 rounded-md px-2 py-1 text-xs font-semibold text-primary-foreground",
+                            marketSentiment === 'Bullish' ? 'bg-positive/80' : 'bg-negative/80'
+                        )}
+                    >
+                        {marketSentiment}
+                    </div>
+                )}
                 <div ref={chartContainerRef} className={cn("h-full w-full", loading && "opacity-0")} />
             </CardContent>
         </Card>
     );
 }
-
-    
 
     
