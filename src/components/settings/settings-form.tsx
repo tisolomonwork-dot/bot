@@ -52,6 +52,10 @@ export function SettingsForm() {
       baseCurrency: "USD",
       riskPreference: "normal",
       aiTone: "detailed",
+      bybitApiKey: "",
+      bybitApiSecret: "",
+      geminiApiKey: "",
+      geminiApiSecret: "",
     },
   });
 
@@ -169,7 +173,7 @@ export function SettingsForm() {
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select risk level" />
-                        </Trigger>
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="conservative">Conservative</SelectItem>
@@ -190,12 +194,12 @@ export function SettingsForm() {
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select AI tone" />
-                        </Trigger>
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="short">Short & Concise</SelectItem>
+                        <SelectItem value="short">Short &amp; Concise</SelectItem>
                         <SelectItem value="detailed">Detailed</SelectItem>
-                        <SelectItem value="strict">Strict & Formal</SelectItem>
+                        <SelectItem value="strict">Strict &amp; Formal</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormItem>
