@@ -10,6 +10,7 @@ import { getPositions } from '@/lib/services/bybit-service';
 import { FloatingChat } from '@/components/dashboard/floating-chat';
 import { CandlestickChart } from '@/components/dashboard/candlestick-chart';
 import { AiOpinionCard } from '@/components/dashboard/ai-opinion-card';
+import { AppLayout } from '@/components/layout/app-layout';
 
 export default async function DashboardPage() {
   const positions = await getPositions();
@@ -20,7 +21,7 @@ export default async function DashboardPage() {
   const entryPrice = btcPosition?.avgPrice ? parseFloat(btcPosition.avgPrice) : undefined;
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-background">
+    <AppLayout>
       <main className="flex-1 space-y-4 p-4 md:space-y-8 md:p-8">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap-8">
           <Suspense fallback={<Skeleton className="h-32 rounded-xl" />}>
@@ -49,6 +50,6 @@ export default async function DashboardPage() {
         </div>
       </main>
       <FloatingChat />
-    </div>
+    </AppLayout>
   );
 }
