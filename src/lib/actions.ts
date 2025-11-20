@@ -3,7 +3,7 @@
 import { aiAnswerTradingQuestions } from '@/ai/flows/ai-answer-trading-questions';
 import { provideActionableInsights } from '@/ai/flows/ai-provide-actionable-insights';
 import { summarizeMarketSignals } from '@/ai/flows/ai-summarize-market-signals';
-import { getPositions } from './services/bybit-service';
+import { getBalance, getPositions } from './services/bybit-service';
 import { totalPortfolioValue } from './mock-data';
 
 export async function getActionableInsights() {
@@ -24,14 +24,30 @@ export async function getActionableInsights() {
 export async function askAi(question: string) {
   if (!question) return { answer: 'Please provide a question.' };
   try {
-    const positions = await getPositions();
+    // --- Enhanced Context Gathering ---
+    const [positions, balance] = await Promise.all([
+      getPositions(),
+      getBalance(),
+    ]);
+
     const positionContext = positions.length > 0
       ? `The user has the following open positions: ${positions.map(p => `${p.side} ${p.size} ${p.symbol} at an entry price of ${p.avgPrice}. The current unrealized PnL is ${p.unrealisedPnl}.`).join(', ')}.`
       : "The user currently has no open positions.";
 
-    const fullQuestion = `${question} (User context: ${positionContext})`;
+    // For now, we'll use a mock risk preference and market summary. This could be stored in user settings.
+    const riskPreference = 'normal';
+    const marketSummary = 'Market is currently volatile with a slight bullish bias on BTC.';
     
-    const response = await aiAnswerTradingQuestions({ question: fullQuestion });
+    const fullContextQuestion = `A user with a portfolio balance of $${balance.toLocaleString()} and a '${riskPreference}' risk tolerance is asking a question.
+    
+    Current Market Summary: ${marketSummary}
+    User's Open Positions: ${positionContext}
+
+    User's Question: "${question}"
+    `;
+    // --- End Enhanced Context ---
+    
+    const response = await aiAnswerTradingQuestions({ question: fullContextQuestion });
     return response;
   } catch (error) {
     console.error(error);
