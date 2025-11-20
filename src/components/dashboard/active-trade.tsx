@@ -1,11 +1,8 @@
-import { getPositions } from "@/lib/services/bybit-service";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-export async function ActiveTrade() {
-  const positions = await getPositions();
-  const btcPosition = positions.find(p => p.symbol === 'BTCUSDT');
+export async function ActiveTrade({ btcPosition }: { btcPosition: any }) {
 
   if (!btcPosition) {
     return (

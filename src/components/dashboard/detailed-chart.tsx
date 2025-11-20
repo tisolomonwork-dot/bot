@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { TrendingUp } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, ReferenceLine, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -39,7 +39,12 @@ type KlineData = {
     volume: number;
 }
 
-export function DetailedChart() {
+interface DetailedChartProps {
+    takeProfit?: number;
+    stopLoss?: number;
+}
+
+export function DetailedChart({ takeProfit, stopLoss }: DetailedChartProps) {
     const [chartData, setChartData] = useState<KlineData[]>([]);
     const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
     const [interval, setInterval] = useState<KlineInterval>('60');
@@ -123,7 +128,7 @@ export function DetailedChart() {
                     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                 }}
                 />
-                <YAxis tickLine={false} axisLine={false} tickMargin={8} orientation="right" tickFormatter={(value) => `$${(value/1000).toFixed(0)}k`} />
+                <YAxis domain={['dataMin - 100', 'dataMax + 100']} tickLine={false} axisLine={false} tickMargin={8} orientation="right" tickFormatter={(value) => `$${(typeof value === 'number' ? value/1000 : 0).toFixed(0)}k`} />
                 <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="line" labelFormatter={(label) => new Date(label).toLocaleString()} />} />
                 <defs>
                 <linearGradient id="fillPrice" x1="0" y1="0" x2="0" y2="1">
@@ -140,14 +145,16 @@ export function DetailedChart() {
                 </linearGradient>
                 </defs>
                 <Area
-                dataKey="close"
-                type="natural"
-                fill="url(#fillPrice)"
-                stroke="hsl(var(--chart-1))"
-                strokeWidth={2}
-                stackId="a"
-                dot={false}
+                    dataKey="close"
+                    type="natural"
+                    fill="url(#fillPrice)"
+                    stroke="hsl(var(--chart-1))"
+                    strokeWidth={2}
+                    stackId="a"
+                    dot={false}
                 />
+                {takeProfit && <ReferenceLine y={takeProfit} label={{ value: 'TP', position: 'right', fill: 'hsl(var(--positive))' }} stroke="hsl(var(--positive))" strokeDasharray="3 3" />}
+                {stopLoss && <ReferenceLine y={stopLoss} label={{ value: 'SL', position: 'right', fill: 'hsl(var(--negative))' }} stroke="hsl(var(--negative))" strokeDasharray="3 3" />}
             </AreaChart>
             </ChartContainer>
         )}

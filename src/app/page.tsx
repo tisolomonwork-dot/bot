@@ -5,8 +5,15 @@ import { TradePanel } from '@/components/dashboard/trade-panel';
 import { BalancePnl } from '@/components/dashboard/balance-pnl';
 import { ActiveTrade } from '@/components/dashboard/active-trade';
 import { FloatingChat } from '@/components/dashboard/floating-chat';
+import { getPositions } from '@/lib/services/bybit-service';
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const positions = await getPositions();
+  const btcPosition = positions.find(p => p.symbol === 'BTCUSDT');
+
+  const takeProfit = btcPosition?.takeProfit ? parseFloat(btcPosition.takeProfit) : undefined;
+  const stopLoss = btcPosition?.stopLoss ? parseFloat(btcPosition.stopLoss) : undefined;
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <main className="flex-1 space-y-4 p-4 md:p-8">
@@ -15,13 +22,13 @@ export default function DashboardPage() {
             <BalancePnl />
           </Suspense>
           <Suspense fallback={<Skeleton className="h-32 rounded-xl lg:col-span-3" />}>
-            <ActiveTrade />
+            <ActiveTrade btcPosition={btcPosition} />
           </Suspense>
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
-              <DetailedChart />
+              <DetailedChart takeProfit={takeProfit} stopLoss={stopLoss} />
             </Suspense>
           </div>
           <div>
