@@ -31,7 +31,16 @@ export async function askAi(question: string) {
     ]);
 
     const positionContext = positions.length > 0
-      ? `The user has the following open positions: ${positions.map(p => `${p.side} ${p.size} ${p.symbol} at an entry price of ${p.avgPrice}. The current unrealized PnL is ${p.unrealisedPnl}.`).join(', ')}.`
+      ? `The user has the following open positions: ${positions.map(p => {
+          let positionString = `${p.side} ${p.size} ${p.symbol} at an entry price of ${p.avgPrice}. The current unrealized PnL is ${p.unrealisedPnl}.`;
+          if (p.takeProfit) {
+            positionString += ` Take Profit is set to ${p.takeProfit}.`;
+          }
+          if (p.stopLoss) {
+            positionString += ` Stop Loss is set to ${p.stopLoss}.`;
+          }
+          return positionString;
+        }).join('; ')}.`
       : "The user currently has no open positions.";
 
     // For now, we'll use a mock risk preference and market summary. This could be stored in user settings.
