@@ -12,11 +12,13 @@ import { JournalEntryForm } from './journal-entry-form';
 interface JournalEntryDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
+    onSave?: () => void;
 }
 
-export function JournalEntryDialog({ open, onOpenChange }: JournalEntryDialogProps) {
+export function JournalEntryDialog({ open, onOpenChange, onSave }: JournalEntryDialogProps) {
 
     const handleSave = () => {
+        onSave?.();
         onOpenChange(false);
     }
 
