@@ -185,7 +185,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             chart.remove();
         };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [fetchData, handleResize]);
+    }, []);
 
 
     useEffect(() => {
@@ -320,4 +320,5 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     
 
     
+
 
