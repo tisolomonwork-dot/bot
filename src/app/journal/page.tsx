@@ -6,7 +6,7 @@ import { useCollection } from "@/firebase";
 import { useUser } from "@/firebase/auth/use-user";
 import { collection, query, orderBy, where, limit, startAfter, getDocs, type QueryDocumentSnapshot, type DocumentData } from "firebase/firestore";
 import { useFirestore } from "@/firebase";
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Header } from "@/components/layout/header";
 import { Button } from "@/components/ui/button";
