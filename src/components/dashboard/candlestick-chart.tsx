@@ -83,8 +83,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             const recentLow = Math.min(...formattedData.map(d => d.low));
             const recentHigh = Math.max(...formattedData.map(d => d.high));
             const range = recentHigh - recentLow;
-            const level50 = recentHigh - range * 0.5;
-            const level60 = recentHigh - range * 0.6;
+            const level50 = recentLow + range * 0.5;
+            const level60 = recentLow + range * 0.6;
             
             setRetracement50Line(prevLine => {
                 if (prevLine) series.removePriceLine(prevLine);
@@ -265,5 +265,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         </Card>
     );
 }
+
+    
 
     
