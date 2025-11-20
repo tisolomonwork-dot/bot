@@ -6,10 +6,10 @@
 // Security is handled by Firestore Security Rules and not by keeping
 // this configuration private.
 export const firebaseConfig = {
-  apiKey: "AIzaSyC2qjF4tZ-redacted-83dZ1i3c",
+  apiKey: "AIzaSyB5xlWKM32H9dlKczXI97rQeQ7tqx1vCno",
   authDomain: "alexa-0-1-ayer.firebaseapp.com",
   projectId: "alexa-0-1-ayer",
   storageBucket: "alexa-0-1-ayer.appspot.com",
-  messagingSenderId: "1",
-  appId: "1:1:web:1",
+  messagingSenderId: "448893645226",
+  appId: "1:448893645226:web:0c9ffcf295560918d43bd3"
 };
