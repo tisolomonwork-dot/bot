@@ -148,29 +148,29 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             height: 420,
             layout: {
                 background: { color: 'transparent' },
-                textColor: 'hsl(215.4 16.3% 56.9%)',
+                textColor: 'hsl(215.4, 16.3%, 56.9%)',
             },
             grid: {
-                vertLines: { color: 'hsl(224 33% 15%)' },
-                horzLines: { color: 'hsl(224 33% 15%)' },
+                vertLines: { color: 'hsl(224, 33%, 15%)' },
+                horzLines: { color: 'hsl(224, 33%, 15%)' },
             },
             timeScale: {
-                borderColor: 'hsl(224 33% 15%)',
+                borderColor: 'hsl(224, 33%, 15%)',
                 timeVisible: true,
                 secondsVisible: false,
             },
             rightPriceScale: {
-                borderColor: 'hsl(224 33% 15%)',
+                borderColor: 'hsl(224, 33%, 15%)',
             },
         });
 
         const series = chart.addCandlestickSeries({
-            upColor: 'hsl(142.1 70.6% 45.3%)',
-            downColor: 'hsl(0 72.2% 50.6%)',
-            borderDownColor: 'hsl(0 72.2% 50.6%)',
-            borderUpColor: 'hsl(142.1 70.6% 45.3%)',
-            wickDownColor: 'hsl(0 72.2% 50.6%)',
-            wickUpColor: 'hsl(142.1 70.6% 45.3%)',
+            upColor: 'hsl(142.1, 70.6%, 45.3%)',
+            downColor: 'hsl(0, 72.2%, 50.6%)',
+            borderDownColor: 'hsl(0, 72.2%, 50.6%)',
+            borderUpColor: 'hsl(142.1, 70.6%, 45.3%)',
+            wickDownColor: 'hsl(0, 72.2%, 50.6%)',
+            wickUpColor: 'hsl(142.1, 70.6%, 45.3%)',
         });
         
         const maSeries = chart.addLineSeries({
@@ -254,7 +254,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (takeProfit) {
             positionLinesRef.current.tp = series.createPriceLine({
                 price: takeProfit,
-                color: 'hsl(142.1 70.6% 45.3%)',
+                color: 'hsl(142.1, 70.6%, 45.3%)',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
@@ -264,7 +264,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (stopLoss) {
             positionLinesRef.current.sl = series.createPriceLine({
                 price: stopLoss,
-                color: 'hsl(0 72.2% 50.6%)',
+                color: 'hsl(0, 72.2%, 50.6%)',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dashed,
                 axisLabelVisible: true,
@@ -274,7 +274,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         if (entryPrice) {
             positionLinesRef.current.entry = series.createPriceLine({
                 price: entryPrice,
-                color: 'hsl(210 20% 98%)',
+                color: 'hsl(210, 20%, 98%)',
                 lineWidth: 1,
                 lineStyle: LineStyle.Dotted,
                 axisLabelVisible: true,
