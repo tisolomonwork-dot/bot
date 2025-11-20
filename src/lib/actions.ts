@@ -4,15 +4,32 @@ import { aiAnswerTradingQuestions } from '@/ai/flows/ai-answer-trading-questions
 import { provideActionableInsights } from '@/ai/flows/ai-provide-actionable-insights';
 import { summarizeMarketSignals } from '@/ai/flows/ai-summarize-market-signals';
 import { getBalance, getPositions } from './services/bybit-service';
-import { totalPortfolioValue } from './mock-data';
 
 export async function getActionableInsights() {
   try {
+    const [balance, positions] = await Promise.all([
+      getBalance(),
+      getPositions(),
+    ]);
+
+    const positionContext = positions.length > 0
+      ? `The user has the following open positions: ${positions.map(p => {
+          let positionString = `${p.side} ${p.size} ${p.symbol} at an entry price of ${p.avgPrice}. The current unrealized PnL is ${p.unrealisedPnl}.`;
+          if (p.takeProfit) {
+            positionString += ` Take Profit is set to ${p.takeProfit}.`;
+          }
+          if (p.stopLoss) {
+            positionString += ` Stop Loss is set to ${p.stopLoss}.`;
+          }
+          return positionString;
+        }).join('; ')}.`
+      : "The user currently has no open positions.";
+
     const insights = await provideActionableInsights({
-      portfolioValue: totalPortfolioValue,
-      marketConditions: 'Market is volatile with BTC showing strength.',
-      openPositions: 'Long BTC, Long ETH, Short SOL.',
-      riskPreference: 'normal',
+      portfolioValue: balance,
+      marketConditions: 'Market is volatile with BTC showing strength. Analyze the provided positions to determine overall market sentiment.', // The AI can infer more from the live data.
+      openPositions: positionContext,
+      riskPreference: 'normal', // This can be updated later to pull from user settings.
     });
     return insights;
   } catch (error) {
