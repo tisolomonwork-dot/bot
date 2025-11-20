@@ -13,12 +13,16 @@ export function Breadcrumbs() {
 
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
 
+  if (segments.length === 0) {
+    return null; // Don't show breadcrumbs on the root menu page
+  }
+
   return (
-    <nav aria-label="Breadcrumb" className="hidden md:flex items-center space-x-2 text-sm text-muted-foreground">
+    <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-sm text-muted-foreground">
       <Link href="/" className="hover:text-foreground">
-        Home
+        Menu
       </Link>
-      {segments.length > 0 && <ChevronRight className="h-4 w-4" />}
+      <ChevronRight className="h-4 w-4" />
       {segments.map((segment, index) => {
         const href = `/${segments.slice(0, index + 1).join('/')}`;
         const isLast = index === segments.length - 1;

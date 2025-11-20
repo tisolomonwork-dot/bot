@@ -1,55 +1,52 @@
+import Link from 'next/link';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Wallet, CandlestickChart, Settings } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
+const menuItems = [
+  {
+    title: 'Investments',
+    description: 'View your trading dashboard.',
+    href: '/investments',
+    icon: <Wallet className="h-8 w-8 text-primary" />,
+  },
+  {
+    title: 'Strategies',
+    description: 'Analyze market strategies.',
+    href: '/strategies',
+    icon: <CandlestickChart className="h-8 w-8 text-primary" />,
+  },
+  {
+    title: 'Settings',
+    description: 'Configure your account.',
+    href: '/settings',
+    icon: <Settings className="h-8 w-8 text-primary" />,
+  },
+];
 
-import { Suspense } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { TradePanel } from '@/components/dashboard/trade-panel';
-import { BalancePnl } from '@/components/dashboard/balance-pnl';
-import { ActiveTrade } from '@/components/dashboard/active-trade';
-import { getPositions } from '@/lib/services/bybit-service';
-import { FloatingChat } from '@/components/dashboard/floating-chat';
-import { CandlestickChart } from '@/components/dashboard/candlestick-chart';
-import { AiOpinionCard } from '@/components/dashboard/ai-opinion-card';
-import { AppLayout } from '@/components/layout/app-layout';
-
-export default async function DashboardPage() {
-  const positions = await getPositions();
-  const btcPosition = positions.find(p => p.symbol === 'BTCUSDT');
-
-  const takeProfit = btcPosition?.takeProfit ? parseFloat(btcPosition.takeProfit) : undefined;
-  const stopLoss = btcPosition?.stopLoss ? parseFloat(btcPosition.stopLoss) : undefined;
-  const entryPrice = btcPosition?.avgPrice ? parseFloat(btcPosition.avgPrice) : undefined;
-
+export default function MenuPage() {
   return (
-    <AppLayout>
-      <main className="flex-1 space-y-4 p-4 md:space-y-8 md:p-8">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4 md:gap-8">
-          <Suspense fallback={<Skeleton className="h-32 rounded-xl" />}>
-            <BalancePnl />
-          </Suspense>
-        </div>
-        <div className="grid grid-cols-1 gap-4 md:gap-8">
-            <Suspense fallback={<Skeleton className="h-32 rounded-xl lg:col-span-4" />}>
-                <ActiveTrade btcPosition={btcPosition} />
-            </Suspense>
-        </div>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 md:gap-8">
-          <div className="lg:col-span-2 flex flex-col gap-4 md:gap-8">
-             <Suspense fallback={<Skeleton className="h-[240px] rounded-xl" />}>
-                <AiOpinionCard />
-            </Suspense>
-            <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
-              <CandlestickChart takeProfit={takeProfit} stopLoss={stopLoss} entryPrice={entryPrice} />
-            </Suspense>
-          </div>
-          <div>
-            <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
-              <TradePanel />
-            </Suspense>
-          </div>
-        </div>
-      </main>
-      <FloatingChat />
-    </AppLayout>
+    <main className="flex flex-1 flex-col items-center justify-center p-4">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold tracking-tight">AetherMind Trading</h1>
+        <p className="text-lg text-muted-foreground mt-2">Your AI-Powered Trading Co-Pilot</p>
+      </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-4xl w-full">
+        {menuItems.map((item) => (
+          <Link href={item.href} key={item.title} className="group">
+            <Card className="h-full transition-all duration-300 ease-in-out group-hover:border-primary group-hover:shadow-lg group-hover:shadow-primary/10 group-hover:-translate-y-1">
+              <CardHeader className="flex-row items-center gap-4 space-y-0">
+                {item.icon}
+                <div>
+                  <CardTitle>{item.title}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardDescription>{item.description}</CardDescription>
+              </CardContent>
+            </Card>
+          </Link>
+        ))}
+      </div>
+    </main>
   );
 }
