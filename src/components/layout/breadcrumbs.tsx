@@ -13,13 +13,13 @@ export function Breadcrumbs() {
 
   const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1).replace(/-/g, ' ');
 
-  if (segments.length === 0) {
+  if (segments.length === 0 || segments[0] === 'menu') {
     return null; // Don't show breadcrumbs on the root menu page
   }
 
   return (
     <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-sm text-muted-foreground">
-      <Link href="/" className="hover:text-foreground">
+      <Link href="/menu" className="hover:text-foreground">
         Menu
       </Link>
       <ChevronRight className="h-4 w-4" />
