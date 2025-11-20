@@ -83,64 +83,6 @@ export function DetailedChart({ takeProfit, stopLoss }: DetailedChartProps) {
 
   return (
     <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
-      <CardContent className="pt-6">
-        {loading ? (
-            <Skeleton className="h-[400px] w-full" />
-        ) : (
-            <ChartContainer config={chartConfig} className="h-[400px] w-full">
-            <AreaChart
-                accessibilityLayer
-                data={chartData}
-                margin={{
-                left: 0,
-                right: 12,
-                top: 10,
-                bottom: 0
-                }}
-            >
-                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="hsl(var(--border) / 0.5)" />
-                <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => {
-                    const date = new Date(value);
-                    if (interval === 'D') return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                }}
-                />
-                <YAxis domain={yAxisDomain} tickLine={false} axisLine={false} tickMargin={8} orientation="right" tickFormatter={(value) => `$${(typeof value === 'number' ? value.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '')}`} />
-                <ChartTooltip cursor={true} content={<ChartTooltipContent indicator="line" labelFormatter={(label) => new Date(label).toLocaleString()} />} />
-                <defs>
-                <linearGradient id="fillPrice" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                    offset="5%"
-                    stopColor="hsl(var(--chart-1))"
-                    stopOpacity={0.8}
-                    />
-                    <stop
-                    offset="95%"
-                    stopColor="hsl(var(--chart-1))"
-                    stopOpacity={0.1}
-                    />
-                </linearGradient>
-                </defs>
-                <Area
-                    dataKey="close"
-                    type="natural"
-                    fill="url(#fillPrice)"
-                    stroke="hsl(var(--chart-1))"
-                    strokeWidth={2}
-                    stackId="a"
-                    dot={false}
-                />
-                {takeProfit && <ReferenceLine y={takeProfit} label={{ value: 'TP', position: 'right', fill: 'hsl(var(--positive))' }} stroke="hsl(var(--positive))" strokeDasharray="3 3" />}
-                {stopLoss && <ReferenceLine y={stopLoss} label={{ value: 'SL', position: 'right', fill: 'hsl(var(--negative))' }} stroke="hsl(var(--negative))" strokeDasharray="3 3" />}
-            </AreaChart>
-            </ChartContainer>
-        )}
-      </CardContent>
     </Card>
   );
 }
