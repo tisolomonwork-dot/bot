@@ -61,7 +61,6 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         const series = candlestickSeriesRef.current;
         const maSeries = ma200SeriesRef.current;
 
-        setLoading(true);
         const [klinesData, tickerData] = await Promise.all([
             getKlines({
                 category: 'linear',
@@ -127,8 +126,10 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             setTicker(tickerData[0]);
         }
         
-        setLoading(false);
-    }, []);
+        if(loading){
+            setLoading(false);
+        }
+    }, [loading]);
 
     useEffect(() => {
         if (!chartContainerRef.current) return;
@@ -184,6 +185,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             window.removeEventListener('resize', handleResize);
             chart.remove();
         };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetchData, handleResize]);
 
 
