@@ -28,7 +28,6 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
         if (chartApiRef.current && chartContainerRef.current) {
             chartApiRef.current.applyOptions({
                 width: chartContainerRef.current.clientWidth,
-                height: chartContainerRef.current.clientHeight,
             });
         }
     }, []);
@@ -36,7 +35,7 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
     useEffect(() => {
         if (!chartContainerRef.current) return;
 
-        chartApiRef.current = createChart(chartContainerRef.current, {
+        const chart = createChart(chartContainerRef.current, {
             width: chartContainerRef.current.clientWidth,
             height: 420,
             layout: {
@@ -57,7 +56,7 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
             },
         });
 
-        candlestickSeriesRef.current = chartApiRef.current.addCandlestickSeries({
+        const series = chart.addCandlestickSeries({
             upColor: 'hsl(var(--positive))',
             downColor: 'hsl(var(--negative))',
             borderDownColor: 'hsl(var(--negative))',
@@ -66,47 +65,58 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
             wickUpColor: 'hsl(var(--positive))',
         });
 
+        chartApiRef.current = chart;
+        candlestickSeriesRef.current = series;
+
         window.addEventListener('resize', handleResize);
+        
+        // Initial data fetch
+        fetchData(interval, series);
 
         return () => {
             window.removeEventListener('resize', handleResize);
-            chartApiRef.current?.remove();
+            chart.remove();
         };
     }, [handleResize]);
 
-    useEffect(() => {
-        async function fetchData() {
-            setLoading(true);
-            const [klinesData, tickerData] = await Promise.all([
-                getKlines({
-                    category: 'linear',
-                    symbol: 'BTCUSDT',
-                    interval: interval,
-                    limit: 100,
-                }),
-                getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
-            ]);
-            
-            if (klinesData && candlestickSeriesRef.current) {
-                const formattedData = klinesData.map(d => ({
-                    time: (new Date(d.date).getTime() / 1000) as Time,
-                    open: d.open,
-                    high: d.high,
-                    low: d.low,
-                    close: d.close,
-                }));
-                candlestickSeriesRef.current.setData(formattedData);
-                chartApiRef.current?.timeScale().fitContent();
-            }
-
-            if (tickerData.length > 0) {
-                setTicker(tickerData[0]);
-            }
-            
-            setLoading(false);
+    const fetchData = useCallback(async (newInterval: KlineInterval, series: ISeriesApi<'Candlestick'> | null) => {
+        setLoading(true);
+        const [klinesData, tickerData] = await Promise.all([
+            getKlines({
+                category: 'linear',
+                symbol: 'BTCUSDT',
+                interval: newInterval,
+                limit: 100,
+            }),
+            getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
+        ]);
+        
+        if (klinesData && series) {
+            const formattedData = klinesData.map(d => ({
+                time: (new Date(d.date).getTime() / 1000) as Time,
+                open: d.open,
+                high: d.high,
+                low: d.low,
+                close: d.close,
+            }));
+            series.setData(formattedData);
+            chartApiRef.current?.timeScale().fitContent();
         }
-        fetchData();
 
+        if (tickerData.length > 0) {
+            setTicker(tickerData[0]);
+        }
+        
+        setLoading(false);
+    }, []);
+
+    useEffect(() => {
+        if (candlestickSeriesRef.current) {
+            fetchData(interval, candlestickSeriesRef.current);
+        }
+    }, [interval, fetchData]);
+
+    useEffect(() => {
         const priceInterval = setInterval(async () => {
              const tickerData = await getTickers({ category: 'linear', symbol: 'BTCUSDT' });
              if (tickerData.length > 0) {
@@ -115,7 +125,7 @@ export function CandlestickChart({ takeProfit, stopLoss }: CandlestickChartProps
         }, 3000);
 
         return () => clearInterval(priceInterval);
-    }, [interval]);
+    }, []);
 
     // Update TP/SL lines
     useEffect(() => {
