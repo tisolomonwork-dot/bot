@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -21,9 +22,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
     const ma200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
     const retracementLinesRef = useRef<{ line50: IPriceLine | null, line60: IPriceLine | null }>({ line50: null, line60: null });
-    const [tpLine, setTpLine] = useState<IPriceLine | null>(null);
-    const [slLine, setSlLine] = useState<IPriceLine | null>(null);
-    const [entryLine, setEntryLine] = useState<IPriceLine | null>(null);
+    const positionLinesRef = useRef<{ tp: IPriceLine | null, sl: IPriceLine | null, entry: IPriceLine | null }>({ tp: null, sl: null, entry: null });
 
     const [loading, setLoading] = useState(true);
     const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
@@ -233,13 +232,13 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         const series = candlestickSeriesRef.current;
 
         // Remove old lines if they exist
-        if (tpLine) series.removePriceLine(tpLine);
-        if (slLine) series.removePriceLine(slLine);
-        if (entryLine) series.removePriceLine(entryLine);
+        if (positionLinesRef.current.tp) series.removePriceLine(positionLinesRef.current.tp);
+        if (positionLinesRef.current.sl) series.removePriceLine(positionLinesRef.current.sl);
+        if (positionLinesRef.current.entry) series.removePriceLine(positionLinesRef.current.entry);
 
         // Add new lines
         if (takeProfit) {
-            const newTpLine = series.createPriceLine({
+            positionLinesRef.current.tp = series.createPriceLine({
                 price: takeProfit,
                 color: 'rgba(57, 166, 103, 1)',
                 lineWidth: 1,
@@ -247,12 +246,11 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: 'TP',
             });
-            setTpLine(newTpLine);
         } else {
-            setTpLine(null);
+            positionLinesRef.current.tp = null;
         }
         if (stopLoss) {
-            const newSlLine = series.createPriceLine({
+            positionLinesRef.current.sl = series.createPriceLine({
                 price: stopLoss,
                 color: 'rgba(215, 84, 84, 1)',
                 lineWidth: 1,
@@ -260,12 +258,11 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: 'SL',
             });
-            setSlLine(newSlLine);
         } else {
-            setSlLine(null);
+            positionLinesRef.current.sl = null;
         }
         if (entryPrice) {
-            const newEntryLine = series.createPriceLine({
+            positionLinesRef.current.entry = series.createPriceLine({
                 price: entryPrice,
                 color: 'rgba(255, 255, 255, 0.7)',
                 lineWidth: 1,
@@ -273,11 +270,9 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 axisLabelVisible: true,
                 title: 'Entry',
             });
-            setEntryLine(newEntryLine);
         } else {
-            setEntryLine(null);
+            positionLinesRef.current.entry = null;
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [takeProfit, stopLoss, entryPrice]);
 
     const priceChangePercent = ticker ? parseFloat(ticker.price24hPcnt) * 100 : 0;
@@ -325,3 +320,4 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     
 
     
+
