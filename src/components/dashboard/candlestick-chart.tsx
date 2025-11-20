@@ -21,12 +21,12 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
     const ma200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
     const retracementLinesRef = useRef<{ line50: IPriceLine | null, line60: IPriceLine | null }>({ line50: null, line60: null });
-
-    const [loading, setLoading] = useState(true);
-    const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
     const [tpLine, setTpLine] = useState<IPriceLine | null>(null);
     const [slLine, setSlLine] = useState<IPriceLine | null>(null);
     const [entryLine, setEntryLine] = useState<IPriceLine | null>(null);
+
+    const [loading, setLoading] = useState(true);
+    const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
     
     const [marketSentiment, setMarketSentiment] = useState<'Bullish' | 'Bearish' | null>(null);
     const [priceProximityEmoji, setPriceProximityEmoji] = useState<string | null>(null);
@@ -174,12 +174,11 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         candlestickSeriesRef.current = series;
         ma200SeriesRef.current = maSeries;
 
+        fetchData();
+        const dataInterval = setInterval(fetchData, 30000);
 
         window.addEventListener('resize', handleResize);
         
-        fetchData();
-        const dataInterval = setInterval(() => fetchData(), 30000); // Refresh klines every 30s
-
         return () => {
             clearInterval(dataInterval);
             window.removeEventListener('resize', handleResize);
@@ -320,5 +319,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         </Card>
     );
 }
+
+    
 
     
