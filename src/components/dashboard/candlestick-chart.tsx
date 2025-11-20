@@ -52,7 +52,12 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         return result;
     }
 
-    const fetchData = useCallback(async (series: ISeriesApi<'Candlestick'> | null, maSeries: ISeriesApi<'Line'> | null) => {
+    const fetchData = useCallback(async () => {
+        if (!candlestickSeriesRef.current || !ma200SeriesRef.current) return;
+        
+        const series = candlestickSeriesRef.current;
+        const maSeries = ma200SeriesRef.current;
+
         setLoading(true);
         const [klinesData, tickerData] = await Promise.all([
             getKlines({
@@ -64,7 +69,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
         ]);
         
-        if (klinesData && klinesData.length > 0 && series) {
+        if (klinesData && klinesData.length > 0) {
             const formattedData = klinesData.map(d => ({
                 time: (new Date(d.date).getTime() / 1000) as Time,
                 open: d.open,
@@ -81,33 +86,32 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             const level50 = recentHigh - range * 0.5;
             const level60 = recentHigh - range * 0.6;
             
-            if (retracement50Line) series.removePriceLine(retracement50Line);
-            const newRetracement50Line = series.createPriceLine({
-                price: level50,
-                color: 'rgba(255, 193, 7, 0.5)',
-                lineWidth: 1,
-                lineStyle: LineStyle.Dotted,
-                axisLabelVisible: true,
-                title: '50%',
+            setRetracement50Line(prevLine => {
+                if (prevLine) series.removePriceLine(prevLine);
+                return series.createPriceLine({
+                    price: level50,
+                    color: 'rgba(255, 193, 7, 0.5)',
+                    lineWidth: 1,
+                    lineStyle: LineStyle.Dotted,
+                    axisLabelVisible: true,
+                    title: '50%',
+                });
             });
-            setRetracement50Line(newRetracement50Line);
 
-            if (retracement60Line) series.removePriceLine(retracement60Line);
-            const newRetracement60Line = series.createPriceLine({
-                price: level60,
-                color: 'rgba(3, 169, 244, 0.5)',
-                lineWidth: 1,
-                lineStyle: LineStyle.Dotted,
-                axisLabelVisible: true,
-                title: '60%',
+            setRetracement60Line(prevLine => {
+                if (prevLine) series.removePriceLine(prevLine);
+                return series.createPriceLine({
+                    price: level60,
+                    color: 'rgba(3, 169, 244, 0.5)',
+                    lineWidth: 1,
+                    lineStyle: LineStyle.Dotted,
+                    axisLabelVisible: true,
+                    title: '60%',
+                });
             });
-            setRetracement60Line(newRetracement60Line);
 
-
-            if (maSeries) {
-                const ma200Data = calculateMA(formattedData, 200);
-                maSeries.setData(ma200Data);
-            }
+            const ma200Data = calculateMA(formattedData, 200);
+            maSeries.setData(ma200Data);
 
             chartApiRef.current?.timeScale().fitContent();
         }
@@ -117,7 +121,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         }
         
         setLoading(false);
-    }, [retracement50Line, retracement60Line]);
+    }, []);
 
     useEffect(() => {
         if (!chartContainerRef.current) return;
@@ -166,8 +170,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
 
         window.addEventListener('resize', handleResize);
         
-        fetchData(series, maSeries);
-        const dataInterval = setInterval(() => fetchData(series, maSeries), 30000); // Refresh klines every 30s
+        fetchData();
+        const dataInterval = setInterval(() => fetchData(), 30000); // Refresh klines every 30s
 
         return () => {
             clearInterval(dataInterval);
