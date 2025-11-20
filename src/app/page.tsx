@@ -1,3 +1,6 @@
+
+export const dynamic = 'force-dynamic';
+
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TradePanel } from '@/components/dashboard/trade-panel';
