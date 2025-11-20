@@ -19,6 +19,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const chartContainerRef = useRef<HTMLDivElement>(null);
     const chartApiRef = useRef<IChartApi | null>(null);
     const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
+    const ma200SeriesRef = useRef<ISeriesApi<'Line'> | null>(null);
     const [loading, setLoading] = useState(true);
     const [ticker, setTicker] = useState<{lastPrice: string, price24hPcnt: string} | null>(null);
     const [tpLine, setTpLine] = useState<IPriceLine | null>(null);
@@ -33,14 +34,30 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         }
     }, []);
     
-    const fetchData = useCallback(async (series: ISeriesApi<'Candlestick'> | null) => {
+    const calculateMA = (data: { time: Time, close: number }[], period: number) => {
+        let result: { time: Time, value: number }[] = [];
+        for (let i = 0; i < data.length; i++) {
+            if (i < period -1) {
+                result.push({ time: data[i].time, value: NaN });
+            } else {
+                let sum = 0;
+                for (let j = 0; j < period; j++) {
+                    sum += data[i-j].close;
+                }
+                result.push({ time: data[i].time, value: sum / period });
+            }
+        }
+        return result;
+    }
+
+    const fetchData = useCallback(async (series: ISeriesApi<'Candlestick'> | null, maSeries: ISeriesApi<'Line'> | null) => {
         setLoading(true);
         const [klinesData, tickerData] = await Promise.all([
             getKlines({
                 category: 'linear',
                 symbol: 'BTCUSDT',
                 interval: '30',
-                limit: 100,
+                limit: 300,
             }),
             getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
         ]);
@@ -54,6 +71,12 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 close: d.close,
             }));
             series.setData(formattedData);
+
+            if (maSeries) {
+                const ma200Data = calculateMA(formattedData, 200);
+                maSeries.setData(ma200Data);
+            }
+
             chartApiRef.current?.timeScale().fitContent();
         }
 
@@ -96,14 +119,23 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             wickDownColor: 'rgba(215, 84, 84, 1)',
             wickUpColor: 'rgba(57, 166, 103, 1)',
         });
+        
+        const maSeries = chart.addLineSeries({
+            color: 'rgba(255, 165, 0, 0.8)',
+            lineWidth: 2,
+            lastValueVisible: false,
+            priceLineVisible: false,
+        });
 
         chartApiRef.current = chart;
         candlestickSeriesRef.current = series;
+        ma200SeriesRef.current = maSeries;
+
 
         window.addEventListener('resize', handleResize);
         
-        fetchData(series);
-        const dataInterval = setInterval(() => fetchData(series), 30000); // Refresh klines every 30s
+        fetchData(series, maSeries);
+        const dataInterval = setInterval(() => fetchData(series, maSeries), 30000); // Refresh klines every 30s
 
         return () => {
             clearInterval(dataInterval);
@@ -168,6 +200,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             });
             setEntryLine(newEntryLine);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [takeProfit, stopLoss, entryPrice]);
 
     const priceChangePercent = ticker ? parseFloat(ticker.price24hPcnt) * 100 : 0;
