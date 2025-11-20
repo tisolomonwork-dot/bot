@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   onAuthStateChanged,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   type User,
 } from 'firebase/auth';
@@ -16,49 +17,64 @@ export function useUser() {
   const auth = useAuth();
   const firestore = useFirestore();
 
+  const handleUser = useCallback(async (user: User | null) => {
+    if (user && firestore) {
+      const userRef = doc(firestore, `users/${user.uid}`);
+      try {
+        await setDoc(
+          userRef,
+          {
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            lastLogin: serverTimestamp(),
+          },
+          { merge: true }
+        );
+      } catch (err) {
+        console.error("Error updating user doc:", err);
+      }
+    }
+    setUser(user);
+    setLoading(false);
+  }, [firestore]);
+
+
   useEffect(() => {
     if (!auth) return;
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
-        if (firestore) {
-            const userRef = doc(firestore, `users/${user.uid}`);
-            setDoc(
-                userRef,
-                {
-                displayName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL,
-                lastLogin: serverTimestamp(),
-                },
-                { merge: true }
-            ).catch(err => console.error("Error updating user doc on auth state change:", err));
+    // Handle the redirect result
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result && result.user) {
+          handleUser(result.user);
         }
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [auth, firestore]);
+      })
+      .catch((error) => {
+        console.error("Error during redirect result:", error);
+      })
+      .finally(() => {
+         // The onAuthStateChanged listener will handle setting the final state.
+         // We still need to set loading to false in case there is no redirect result but a user is already signed in.
+         const unsubscribe = onAuthStateChanged(auth, (user) => {
+            handleUser(user);
+            unsubscribe();
+        });
+      });
+      
+  }, [auth, handleUser]);
 
   const signIn = async (provider: 'google') => {
     if (!auth) return;
     setLoading(true);
     const googleProvider = new GoogleAuthProvider();
-    try {
-        await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-        console.error("Error during sign in:", error);
-        setLoading(false);
-    }
+    await signInWithRedirect(auth, googleProvider);
   };
 
   const signOut = async () => {
     if (!auth) return;
     await auth.signOut();
+    setUser(null);
   };
 
   return { user, loading, signIn, signOut };

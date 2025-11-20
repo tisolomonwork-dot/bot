@@ -11,7 +11,7 @@ import { AiOpinionCard } from '@/components/dashboard/ai-opinion-card';
 import { Header } from '@/components/layout/header';
 
 
-export default function InvestmentsPage() {
+export default function DashboardPage() {
   return (
     <div className="flex min-h-screen w-full flex-col">
         <Header />
