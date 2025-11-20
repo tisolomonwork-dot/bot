@@ -5,7 +5,8 @@ import { BalancePnl } from '@/components/dashboard/balance-pnl';
 import { ActiveTrade } from '@/components/dashboard/active-trade';
 import { getPositions } from '@/lib/services/bybit-service';
 import { FloatingChat } from '@/components/dashboard/floating-chat';
-import { ChartTabs } from '@/components/dashboard/chart-tabs';
+import { CandlestickChart } from '@/components/dashboard/candlestick-chart';
+import { AiOpinionCard } from '@/components/dashboard/ai-opinion-card';
 
 export default async function DashboardPage() {
   const positions = await getPositions();
@@ -29,8 +30,13 @@ export default async function DashboardPage() {
             </Suspense>
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <ChartTabs takeProfit={takeProfit} stopLoss={stopLoss} entryPrice={entryPrice} />
+          <div className="lg:col-span-2 flex flex-col gap-4">
+             <Suspense fallback={<Skeleton className="h-[240px] rounded-xl" />}>
+                <AiOpinionCard />
+            </Suspense>
+            <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
+              <CandlestickChart takeProfit={takeProfit} stopLoss={stopLoss} entryPrice={entryPrice} />
+            </Suspense>
           </div>
           <div>
             <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>

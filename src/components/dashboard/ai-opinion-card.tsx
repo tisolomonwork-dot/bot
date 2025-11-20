@@ -15,7 +15,7 @@ const riskColorMap = {
 };
 
 
-export function AITabContent() {
+export function AiOpinionCard() {
   const [insights, setInsights] = useState<ActionableInsightsOutput | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -42,30 +42,37 @@ export function AITabContent() {
 
   if (loading && !insights) {
     return (
-        <div className="p-6">
-            <div className="flex flex-col gap-4">
-                <Skeleton className="h-6 w-1/2" />
-                <Skeleton className="h-4 w-3/4" />
-                <div className="space-y-4 mt-4">
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                    <Skeleton className="h-12 w-full" />
-                </div>
-            </div>
-        </div>
+        <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
+            <CardHeader>
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+            </CardContent>
+        </Card>
     );
   }
 
   if (!insights) {
     return (
-      <CardContent>
-        <p className="text-destructive text-center p-8">Could not load AI insights at the moment. Please try again later.</p>
-      </CardContent>
+      <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
+        <CardHeader>
+             <CardTitle className="flex items-center gap-2 text-primary">
+                <Bot className="h-6 w-6" />
+                A.I. Opinion
+            </CardTitle>
+        </CardHeader>
+        <CardContent>
+            <p className="text-destructive text-center p-4">Could not load AI insights at the moment. Please try again later.</p>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="p-2">
+    <Card className="bg-card/70 backdrop-blur-sm bg-gradient-to-br from-background to-primary/5">
         <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
             <CardTitle className="flex items-center gap-2 text-primary">
@@ -95,6 +102,6 @@ export function AITabContent() {
             </div>
             ))}
         </CardContent>
-    </div>
+    </Card>
   );
 }
