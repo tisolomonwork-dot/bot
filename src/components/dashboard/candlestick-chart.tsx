@@ -151,7 +151,7 @@ export function CandlestickChart() {
             height: 420,
             layout: {
                 background: { color: 'transparent' },
-                textColor: 'hsl(215.4 16.3% 56.9%)',
+                textColor: '#94a3b8',
                 fontSize: 10,
             },
             grid: {
@@ -301,10 +301,10 @@ export function CandlestickChart() {
                 <div className="flex items-baseline gap-4">
                     <CardTitle>BTC/USD</CardTitle>
                     <div className="flex items-baseline gap-2">
-                        <span className="text-lg font-normal">
+                        <span className="text-lg font-light">
                             {ticker ? parseFloat(ticker.lastPrice).toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : <Skeleton className="h-6 w-20" />}
                         </span>
-                        <span className={cn("text-xs font-normal flex items-center", priceChangePercent >= 0 ? "text-positive" : "text-negative")}>
+                        <span className={cn("text-xs font-light flex items-center", priceChangePercent >= 0 ? "text-positive" : "text-negative")}>
                             <TrendingUp className={cn("h-3 w-3 mr-1", priceChangePercent < 0 && "rotate-180")} />
                             {priceChangePercent.toFixed(2)}%
                         </span>
@@ -317,7 +317,7 @@ export function CandlestickChart() {
                 {marketSentiment && (
                     <div
                         className={cn(
-                            "absolute top-2 left-2 z-10 rounded-md px-2 py-1 text-xs font-normal text-primary-foreground",
+                            "absolute top-2 left-2 z-10 rounded-md px-2 py-1 text-xs font-light text-primary-foreground",
                             marketSentiment === 'Bullish' ? 'bg-positive/80' : 'bg-negative/80'
                         )}
                     >
