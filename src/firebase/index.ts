@@ -7,7 +7,7 @@ import { FirebaseProvider, useFirebase, useFirebaseApp, useAuth, useFirestore } 
 import { FirebaseClientProvider } from './client-provider';
 import { useCollection } from './firestore/use-collection';
 import { useDoc } from './firestore/use-doc';
-import { useUser } from './auth/use-user';
+
 
 let firebaseApp: FirebaseApp;
 if (!getApps().length) {
@@ -28,7 +28,6 @@ export {
   FirebaseClientProvider,
   useCollection,
   useDoc,
-  useUser,
   useFirebase,
   useFirebaseApp,
   useAuth,

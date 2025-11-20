@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { BtcIcon } from '../icons/crypto';
-import { UserNav } from './user-nav';
 import { Suspense } from 'react';
 import { Skeleton } from '../ui/skeleton';
 
@@ -16,9 +15,6 @@ export function Header() {
         </Link>
       </div>
       <div className="ml-auto flex items-center gap-4">
-        <Suspense fallback={<Skeleton className="h-8 w-8 rounded-full" />}>
-          <UserNav />
-        </Suspense>
       </div>
     </header>
   );

@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { AuthGuard } from '@/components/layout/auth-guard';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -29,9 +28,7 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased" suppressHydrationWarning={true}>
         <FirebaseClientProvider>
-            <AuthGuard>
-                {children}
-            </AuthGuard>
+            {children}
             <Toaster />
         </FirebaseClientProvider>
       </body>
