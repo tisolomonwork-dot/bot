@@ -25,6 +25,8 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
     const [tpLine, setTpLine] = useState<IPriceLine | null>(null);
     const [slLine, setSlLine] = useState<IPriceLine | null>(null);
     const [entryLine, setEntryLine] = useState<IPriceLine | null>(null);
+    const [retracement50Line, setRetracement50Line] = useState<IPriceLine | null>(null);
+    const [retracement60Line, setRetracement60Line] = useState<IPriceLine | null>(null);
 
     const handleResize = useCallback(() => {
         if (chartApiRef.current && chartContainerRef.current) {
@@ -62,7 +64,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
         ]);
         
-        if (klinesData && series) {
+        if (klinesData && klinesData.length > 0 && series) {
             const formattedData = klinesData.map(d => ({
                 time: (new Date(d.date).getTime() / 1000) as Time,
                 open: d.open,
@@ -71,6 +73,36 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
                 close: d.close,
             }));
             series.setData(formattedData);
+
+            // Calculate and draw retracement lines
+            const recentLow = Math.min(...formattedData.map(d => d.low));
+            const recentHigh = Math.max(...formattedData.map(d => d.high));
+            const range = recentHigh - recentLow;
+            const level50 = recentHigh - range * 0.5;
+            const level60 = recentHigh - range * 0.6;
+            
+            if (retracement50Line) series.removePriceLine(retracement50Line);
+            const newRetracement50Line = series.createPriceLine({
+                price: level50,
+                color: 'rgba(255, 193, 7, 0.5)',
+                lineWidth: 1,
+                lineStyle: LineStyle.Dotted,
+                axisLabelVisible: true,
+                title: '50%',
+            });
+            setRetracement50Line(newRetracement50Line);
+
+            if (retracement60Line) series.removePriceLine(retracement60Line);
+            const newRetracement60Line = series.createPriceLine({
+                price: level60,
+                color: 'rgba(3, 169, 244, 0.5)',
+                lineWidth: 1,
+                lineStyle: LineStyle.Dotted,
+                axisLabelVisible: true,
+                title: '60%',
+            });
+            setRetracement60Line(newRetracement60Line);
+
 
             if (maSeries) {
                 const ma200Data = calculateMA(formattedData, 200);
@@ -85,7 +117,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         }
         
         setLoading(false);
-    }, []);
+    }, [retracement50Line, retracement60Line]);
 
     useEffect(() => {
         if (!chartContainerRef.current) return;
@@ -95,7 +127,7 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
             height: 420,
             layout: {
                 background: { color: 'transparent' },
-                textColor: 'rgba(132, 142, 156, 1)',
+                textColor: 'rgba(156, 163, 175, 1)',
             },
             grid: {
                 vertLines: { color: 'rgba(48, 54, 69, 0.5)' },
@@ -229,3 +261,5 @@ export function CandlestickChart({ takeProfit, stopLoss, entryPrice }: Candlesti
         </Card>
     );
 }
+
+    
