@@ -11,12 +11,14 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     const { user, loading } = useUser();
     const router = useRouter();
     const pathname = usePathname();
+    const isUnprotected = unprotectedRoutes.includes(pathname);
 
     useEffect(() => {
-        if (!loading && !user && !unprotectedRoutes.includes(pathname)) {
+        // If not loading, not logged in, and trying to access a protected route
+        if (!loading && !user && !isUnprotected) {
             router.push('/');
         }
-    }, [user, loading, router, pathname]);
+    }, [user, loading, router, pathname, isUnprotected]);
 
 
     if (loading) {
@@ -25,18 +27,26 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
                 <Skeleton className="h-10 w-full max-w-sm" />
                 <Skeleton className="h-40 w-full max-w-sm mt-4" />
             </div>
-        )
-    }
-
-    if (!user && !unprotectedRoutes.includes(pathname)) {
-        return null;
+        );
     }
     
-    // Special case for login page
-    if (user && pathname === '/') {
-        // Content will be rendered by login page which handles its own redirect
-        return <>{children}</>;
+    // If not logged in and on a protected route, return null to prevent rendering children.
+    // The useEffect above will handle the redirect.
+    if (!user && !isUnprotected) {
+        return null;
     }
 
+    // If logged in and on the login page, let the login page handle the redirect.
+    // This prevents a flash of content while redirecting.
+    if (user && isUnprotected) {
+         return (
+            <div className="flex min-h-screen w-full flex-col items-center justify-center">
+                <Skeleton className="h-10 w-full max-w-sm" />
+                <Skeleton className="h-40 w-full max-w-sm mt-4" />
+            </div>
+        );
+    }
+
+    // Otherwise, render the children
     return <>{children}</>;
 }

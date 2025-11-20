@@ -18,7 +18,9 @@ export default function LoginPage() {
     }
   }, [user, router]);
 
-  if (loading || user) {
+  // If loading, show skeleton. This is crucial for redirect flow on mobile.
+  // It prevents the page from rendering the sign-in button before getRedirectResult can complete.
+  if (loading) {
     return (
         <div className="flex min-h-screen items-center justify-center">
             <div className="w-full max-w-sm space-y-4">
@@ -28,6 +30,20 @@ export default function LoginPage() {
         </div>
     );
   }
+
+  // If there's a user, the useEffect above will trigger a redirect.
+  // We can return a loading state here as well to prevent a flash of the login form.
+  if (user) {
+    return (
+        <div className="flex min-h-screen items-center justify-center">
+            <div className="w-full max-w-sm space-y-4">
+                 <Skeleton className="h-10 w-full" />
+                 <Skeleton className="h-40 w-full" />
+            </div>
+        </div>
+    );
+  }
+
 
   return (
     <main className="flex min-h-screen flex-1 flex-col items-center justify-center p-4 bg-background">
