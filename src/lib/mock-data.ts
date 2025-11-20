@@ -1,4 +1,4 @@
-import type { Asset, Position, Order, MarketData, ExchangePortfolio, AiInsight } from '@/lib/types';
+import type { Asset, Position, Order, MarketData, ExchangePortfolio, AiInsight, JournalEntry } from '@/lib/types';
 
 export const exchangePortfolios: ExchangePortfolio[] = [
   {
@@ -109,4 +109,22 @@ export const positions: Position[] = [
 export const openOrders: Order[] = [
   { symbol: 'BTC/USD', side: 'Buy', price: 65000, status: 'Open', type: 'Limit' },
   { symbol: 'ETH/USD', side: 'Sell', price: 3600, status: 'Open', type: 'Limit' },
+];
+
+export const journalEntries: JournalEntry[] = [
+    {
+        id: '1',
+        date: new Date('2024-07-28T10:00:00Z'),
+        content: 'Market seems bullish on BTC. Entered a long position at $68,000. Stop loss at $67,000, take profit at $70,000. Feeling confident about this trade based on recent RSI divergence.'
+    },
+    {
+        id: '2',
+        date: new Date('2024-07-27T15:30:00Z'),
+        content: 'Closed my ETH short from yesterday for a small profit. The support at $3,300 held stronger than I expected. Lesson learned: don\'t fight a strong trend, even on short timeframes.'
+    },
+    {
+        id: '3',
+        date: new Date('2024-07-26T09:15:00Z'),
+        content: 'AI suggested a potential breakout on SOL. Watching the charts closely. The risk/reward seems favorable, but I will wait for confirmation above the $145 resistance level before entering.'
+    }
 ];

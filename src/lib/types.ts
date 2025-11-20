@@ -60,3 +60,9 @@ export type AiInsight = {
   riskScore: 'low' | 'medium' | 'high';
   confidenceMeter: number;
 };
+
+export type JournalEntry = {
+    id: string;
+    date: Date;
+    content: string;
+};

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Wallet } from 'lucide-react';
+import { Wallet, BookText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const menuItems = [
@@ -10,6 +10,12 @@ const menuItems = [
     href: '/investments',
     icon: <Wallet className="h-8 w-8 text-primary" />,
   },
+  {
+    title: 'Journal',
+    description: 'Log your trades and thoughts.',
+    href: '/journal',
+    icon: <BookText className="h-8 w-8 text-primary" />,
+  }
 ];
 
 export default function MenuPage() {
