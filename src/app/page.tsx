@@ -1,11 +1,11 @@
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CandlestickChart } from '@/components/dashboard/candlestick-chart';
 import { TradePanel } from '@/components/dashboard/trade-panel';
 import { BalancePnl } from '@/components/dashboard/balance-pnl';
 import { ActiveTrade } from '@/components/dashboard/active-trade';
 import { getPositions } from '@/lib/services/bybit-service';
 import { FloatingChat } from '@/components/dashboard/floating-chat';
+import { ChartTabs } from '@/components/dashboard/chart-tabs';
 
 export default async function DashboardPage() {
   const positions = await getPositions();
@@ -30,9 +30,7 @@ export default async function DashboardPage() {
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>
-              <CandlestickChart takeProfit={takeProfit} stopLoss={stopLoss} entryPrice={entryPrice} />
-            </Suspense>
+            <ChartTabs takeProfit={takeProfit} stopLoss={stopLoss} entryPrice={entryPrice} />
           </div>
           <div>
             <Suspense fallback={<Skeleton className="h-[500px] rounded-xl" />}>

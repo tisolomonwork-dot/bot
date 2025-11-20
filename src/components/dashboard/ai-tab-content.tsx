@@ -1,0 +1,100 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Bot, Zap, CircleDashed } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { getActionableInsights } from '@/lib/actions';
+import type { ActionableInsightsOutput } from '@/ai/flows/ai-provide-actionable-insights';
+import { Skeleton } from '../ui/skeleton';
+
+const riskColorMap = {
+  low: "bg-green-500/20 text-green-700 border-green-500/30",
+  medium: "bg-yellow-500/20 text-yellow-700 border-yellow-500/30",
+  high: "bg-red-500/20 text-red-700 border-red-500/30",
+};
+
+
+export function AITabContent() {
+  const [insights, setInsights] = useState<ActionableInsightsOutput | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const fetchInsights = async () => {
+    try {
+      setLoading(true);
+      const result = await getActionableInsights();
+      setInsights(result);
+      setLastUpdated(new Date());
+    } catch (error) {
+      console.error("Failed to fetch AI insights:", error);
+      setInsights(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInsights(); // Initial fetch
+    const interval = setInterval(fetchInsights, 30 * 60 * 1000); // Fetch every 30 minutes
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading && !insights) {
+    return (
+        <div className="p-6">
+            <div className="flex flex-col gap-4">
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-4 w-3/4" />
+                <div className="space-y-4 mt-4">
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                    <Skeleton className="h-12 w-full" />
+                </div>
+            </div>
+        </div>
+    );
+  }
+
+  if (!insights) {
+    return (
+      <CardContent>
+        <p className="text-destructive text-center p-8">Could not load AI insights at the moment. Please try again later.</p>
+      </CardContent>
+    );
+  }
+
+  return (
+    <div className="p-2">
+        <CardHeader className="pb-3">
+        <div className="flex justify-between items-center">
+            <CardTitle className="flex items-center gap-2 text-primary">
+            <Bot className="h-6 w-6" />
+            A.I. Opinion
+            </CardTitle>
+            {loading && <CircleDashed className="h-5 w-5 animate-spin text-primary" />}
+        </div>
+        <CardDescription className="text-balance">
+            {insights.marketMood && `Market mood is currently ${insights.marketMood}.`} Here are your top suggested actions.
+            {lastUpdated && <span className="block text-xs mt-1">Last updated: {lastUpdated.toLocaleTimeString()}</span>}
+        </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-3">
+            {insights.suggestedActions.slice(0, 3).map((item, index) => (
+            <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-primary/5 transition-colors">
+                <div className="flex items-center gap-3">
+                    <Zap className="h-5 w-5 text-primary/80" />
+                    <div className="flex flex-col">
+                        <p className="text-sm font-medium">{item.action}</p>
+                        <p className="text-xs text-muted-foreground">{item.rationale}</p>
+                    </div>
+                </div>
+                <Badge variant="outline" className={riskColorMap[item.riskScore.toLowerCase() as keyof typeof riskColorMap]}>
+                {item.riskScore}
+                </Badge>
+            </div>
+            ))}
+        </CardContent>
+    </div>
+  );
+}
