@@ -151,7 +151,7 @@ export function CandlestickChart() {
             height: 420,
             layout: {
                 background: { color: 'transparent' },
-                textColor: 'hsl(var(--muted-foreground))',
+                textColor: 'hsl(215.4 16.3% 56.9%)',
                 fontSize: 10,
             },
             grid: {
