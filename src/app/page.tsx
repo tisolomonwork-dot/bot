@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Wallet, CandlestickChart, Settings } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const menuItems = [
   {
@@ -32,8 +33,12 @@ export default function MenuPage() {
       </div>
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 max-w-4xl w-full">
         {menuItems.map((item) => (
-          <Link href={item.href} key={item.title} className="group">
-            <Card className="h-full transition-all duration-300 ease-in-out group-hover:border-primary group-hover:shadow-lg group-hover:shadow-primary/10 group-hover:-translate-y-1">
+          <Link href={item.href} key={item.title} className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-xl">
+            <Card className={cn(
+                "h-full transition-all duration-200 ease-in-out",
+                "group-hover:border-primary group-hover:shadow-lg group-hover:shadow-primary/20 group-hover:-translate-y-1",
+                "group-active:scale-[0.98] group-active:border-primary/50"
+            )}>
               <CardHeader className="flex-row items-center gap-4 space-y-0">
                 {item.icon}
                 <div>

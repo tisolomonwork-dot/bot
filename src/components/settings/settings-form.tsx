@@ -76,59 +76,59 @@ export function SettingsForm() {
           </CardHeader>
           <CardContent className="grid gap-6">
             <div className="grid md:grid-cols-2 gap-4">
-                <FormField
+              <FormField
                 control={form.control}
                 name="bybitApiKey"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Bybit API Key</FormLabel>
                     <FormControl>
-                        <Input placeholder="Bybit API Key" {...field} />
+                      <Input placeholder="Bybit API Key" {...field} />
                     </FormControl>
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
-                <FormField
+              />
+              <FormField
                 control={form.control}
                 name="bybitApiSecret"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Bybit API Secret</FormLabel>
                     <FormControl>
-                        <Input type="password" placeholder="Bybit API Secret" {...field} />
+                      <Input type="password" placeholder="Bybit API Secret" {...field} />
                     </FormControl>
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
+              />
             </div>
             <div className="grid md:grid-cols-2 gap-4">
-                <FormField
+              <FormField
                 control={form.control}
                 name="geminiApiKey"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Gemini API Key</FormLabel>
                     <FormControl>
-                        <Input placeholder="Gemini API Key" {...field} />
+                      <Input placeholder="Gemini API Key" {...field} />
                     </FormControl>
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
-                <FormField
+              />
+              <FormField
                 control={form.control}
                 name="geminiApiSecret"
                 render={({ field }) => (
-                    <FormItem>
+                  <FormItem>
                     <FormLabel>Gemini API Secret</FormLabel>
                     <FormControl>
-                        <Input type="password" placeholder="Gemini API Secret" {...field} />
+                      <Input type="password" placeholder="Gemini API Secret" {...field} />
                     </FormControl>
-                    </FormItem>
+                  </FormItem>
                 )}
-                />
+              />
             </div>
             <Separator />
-             <CardTitle>Preferences</CardTitle>
+            <CardTitle>Preferences</CardTitle>
             <div className="grid md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
