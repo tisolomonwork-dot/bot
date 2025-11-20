@@ -1,15 +1,12 @@
 'use client';
 
 import { useUser } from '@/firebase/auth/use-user';
-import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Skeleton } from '../ui/skeleton';
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from '../ui/card';
 import { BtcIcon } from '../icons/crypto';
 import { Button } from '../ui/button';
 
-
-const unprotectedRoutes = ['/login'];
 
 function LoadingScreen() {
     return (
@@ -33,15 +30,7 @@ function LoadingScreen() {
 }
 
 function LoginPage() {
-  const { user, signIn, loading } = useUser();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && user) {
-        // Redirect to home if user is already logged in
-        router.push('/');
-    }
-  }, [user, loading, router])
+  const { signIn, loading } = useUser();
 
   return (
     <main className="flex min-h-screen flex-1 flex-col items-center justify-center p-4 bg-background">
@@ -66,31 +55,13 @@ function LoginPage() {
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
     const { user, loading } = useUser();
-    const router = useRouter();
-    const pathname = usePathname();
-    const isLoginPage = pathname === '/login';
-
-    useEffect(() => {
-        if (!loading) {
-            if (!user && !isLoginPage) {
-                router.push('/login');
-            }
-            if (user && isLoginPage) {
-                router.push('/');
-            }
-        }
-    }, [user, loading, router, pathname, isLoginPage]);
 
     if (loading) {
         return <LoadingScreen />;
     }
     
-    if (!user && isLoginPage) {
+    if (!user) {
         return <LoginPage />;
-    }
-
-    if (!user && !isLoginPage) {
-        return <LoadingScreen />;
     }
 
     return <>{children}</>;
