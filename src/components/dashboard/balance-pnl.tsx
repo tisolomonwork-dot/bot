@@ -19,14 +19,14 @@ export function BalancePnl() {
       if (balanceData !== null) {
           setBalance(balanceData);
       } else {
-          setBalance(0); // Default to 0 if API fails
+          setBalance(0);
       }
 
       if (positionsData && positionsData.length > 0) {
           const pnl = positionsData.reduce((acc, pos) => acc + parseFloat(pos.unrealisedPnl || '0'), 0);
           setTotalPnl(pnl);
       } else {
-          setTotalPnl(0); // Default to 0 if API fails
+          setTotalPnl(0);
       }
 
     } catch (error) {
@@ -44,6 +44,7 @@ export function BalancePnl() {
     fetchData(); // Initial fetch
     const interval = setInterval(fetchData, 5000); // Refresh every 5 seconds
     return () => clearInterval(interval); // Cleanup on unmount
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {

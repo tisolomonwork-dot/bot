@@ -70,9 +70,11 @@ export function CandlestickChart() {
                 getPositions(),
             ]);
             
-            if (positionsData) {
+            if (positionsData && positionsData.length > 0) {
                 const btcPosition = positionsData.find(p => p.symbol === 'BTCUSDT');
                 setPosition(btcPosition);
+            } else {
+                setPosition(null);
             }
 
             if (klinesData && klinesData.length > 0) {
@@ -141,6 +143,7 @@ export function CandlestickChart() {
             }
         } catch (error) {
             console.error("Failed to fetch chart data:", error);
+            // Gracefully handle the error, the loading skeleton will remain.
         } finally {
             if(loading){
                 setLoading(false);
@@ -237,22 +240,26 @@ export function CandlestickChart() {
         }
 
         const priceInterval = setInterval(async () => {
-             const tickerData = await getTickers({ category: 'linear', symbol: 'BTCUSDT' });
-             if (tickerData && tickerData.length > 0) {
-                const newTicker = tickerData[0];
-                setTicker(newTicker);
-                
-                const lastPrice = parseFloat(newTicker.lastPrice);
-                candlestickSeriesRef.current?.update({
-                    time: (Date.now() / 1000) as Time,
-                    close: lastPrice,
-                });
-                
-                if (takeProfit && stopLoss && position?.side) {
-                    setPriceProximityEmoji(getEmoji(lastPrice, takeProfit, stopLoss, position.side));
-                } else {
-                    setPriceProximityEmoji(null);
+            try {
+                const tickerData = await getTickers({ category: 'linear', symbol: 'BTCUSDT' });
+                 if (tickerData && tickerData.length > 0) {
+                    const newTicker = tickerData[0];
+                    setTicker(newTicker);
+                    
+                    const lastPrice = parseFloat(newTicker.lastPrice);
+                    candlestickSeriesRef.current?.update({
+                        time: (Date.now() / 1000) as Time,
+                        close: lastPrice,
+                    });
+                    
+                    if (takeProfit && stopLoss && position?.side) {
+                        setPriceProximityEmoji(getEmoji(lastPrice, takeProfit, stopLoss, position.side));
+                    } else {
+                        setPriceProximityEmoji(null);
+                    }
                 }
+            } catch (error) {
+                console.error("Failed to fetch ticker data for price update:", error);
             }
         }, 3000);
 
