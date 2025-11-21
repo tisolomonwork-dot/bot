@@ -3,7 +3,27 @@
 import { aiAnswerTradingQuestions } from '@/ai/flows/ai-answer-trading-questions';
 import { provideActionableInsights } from '@/ai/flows/ai-provide-actionable-insights';
 import { summarizeMarketSignals } from '@/ai/flows/ai-summarize-market-signals';
-import { getBalance, getPositions } from './services/bybit-service';
+import { getBalance, getPositions, placeOrder as placeBybitOrder } from './services/bybit-service';
+
+// These new server actions call our internal API routes, abstracting the logic.
+// They are safe to be used in components as they don't contain any direct SDK calls.
+
+export async function getBybitBalance() {
+  return getBalance();
+}
+
+export async function getBybitPositions() {
+  return getPositions();
+}
+
+export async function getBybitOpenOrders() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/bybit/orders`, { cache: 'no-store' });
+  if (!res.ok) {
+    return [];
+  }
+  return res.json();
+}
+
 
 export async function getActionableInsights() {
   try {
@@ -13,7 +33,7 @@ export async function getActionableInsights() {
     ]);
 
     const positionContext = positions.length > 0
-      ? `The user has the following open positions: ${positions.map(p => {
+      ? `The user has the following open positions: ${positions.map((p: any) => {
           let positionString = `${p.side} ${p.size} ${p.symbol} at an entry price of ${p.avgPrice}. The current unrealized PnL is ${p.unrealisedPnl}.`;
           if (p.takeProfit) {
             positionString += ` Take Profit is set to ${p.takeProfit}.`;
@@ -33,7 +53,7 @@ export async function getActionableInsights() {
     });
     return insights;
   } catch (error) {
-    console.error(error);
+    console.error("Error in getActionableInsights:", error);
     return null;
   }
 }
@@ -41,14 +61,13 @@ export async function getActionableInsights() {
 export async function askAi(question: string) {
   if (!question) return { answer: 'Please provide a question.' };
   try {
-    // --- Enhanced Context Gathering ---
     const [positions, balance] = await Promise.all([
       getPositions(),
       getBalance(),
     ]);
 
     const positionContext = positions.length > 0
-      ? `The user has the following open positions: ${positions.map(p => {
+      ? `The user has the following open positions: ${positions.map((p: any) => {
           let positionString = `${p.side} ${p.size} ${p.symbol} at an entry price of ${p.avgPrice}. The current unrealized PnL is ${p.unrealisedPnl}.`;
           if (p.takeProfit) {
             positionString += ` Take Profit is set to ${p.takeProfit}.`;
@@ -59,8 +78,7 @@ export async function askAi(question: string) {
           return positionString;
         }).join('; ')}.`
       : "The user currently has no open positions.";
-
-    // For now, we'll use a mock risk preference and market summary. This could be stored in user settings.
+    
     const riskPreference = 'normal';
     const marketSummary = 'Market is currently volatile with a slight bullish bias on BTC.';
     
@@ -71,12 +89,11 @@ export async function askAi(question: string) {
 
     User's Question: "${question}"
     `;
-    // --- End Enhanced Context ---
     
     const response = await aiAnswerTradingQuestions({ question: fullContextQuestion });
     return response;
   } catch (error) {
-    console.error(error);
+    console.error("Error in askAi:", error);
     return {
       answer: "Sorry, I couldn't process your question. Please try again.",
     };

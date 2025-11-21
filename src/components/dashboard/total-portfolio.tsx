@@ -26,6 +26,8 @@ async function PortfolioValue() {
 }
 
 export function TotalPortfolio() {
+  // This component now relies on mock data for the chart and fetches balance via the service.
+  // The service has been updated to call the internal Next.js API route.
   return (
     <Card className="sm:col-span-2">
       <CardHeader className="pb-3">

@@ -3,11 +3,13 @@
 
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { createChart, type IChartApi, type ISeriesApi, type Time, type IPriceLine, LineStyle } from 'lightweight-charts';
-import { getKlines, getTickers, getPositions } from "@/lib/services/bybit-service";
+import { getKlines, getTickers } from "@/lib/services/bybit-service";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from '../ui/skeleton';
 import { cn } from '@/lib/utils';
 import { TrendingUp } from 'lucide-react';
+import { getPositions } from '@/lib/services/bybit-service';
+
 
 export function CandlestickChart() {
     const chartContainerRef = useRef<HTMLDivElement>(null);
@@ -61,24 +63,23 @@ export function CandlestickChart() {
         try {
             const [klinesData, tickerData, positionsData] = await Promise.all([
                 getKlines({
-                    category: 'linear',
                     symbol: 'BTCUSDT',
                     interval: '30',
                     limit: 300,
                 }),
-                getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
+                getTickers({ symbol: 'BTCUSDT' }),
                 getPositions(),
             ]);
             
             if (positionsData && positionsData.length > 0) {
-                const btcPosition = positionsData.find(p => p.symbol === 'BTCUSDT');
+                const btcPosition = positionsData.find((p:any) => p.symbol === 'BTCUSDT');
                 setPosition(btcPosition);
             } else {
                 setPosition(null);
             }
 
             if (klinesData && klinesData.length > 0) {
-                const formattedData = klinesData.map(d => ({
+                const formattedData = klinesData.map((d: any) => ({
                     time: (new Date(d.date).getTime() / 1000) as Time,
                     open: d.open,
                     high: d.high,
@@ -101,8 +102,8 @@ export function CandlestickChart() {
                     setMarketSentiment(null);
                 }
 
-                const recentLow = Math.min(...formattedData.slice(-50).map(d => d.low));
-                const recentHigh = Math.max(...formattedData.slice(-50).map(d => d.high));
+                const recentLow = Math.min(...formattedData.slice(-50).map((d:any) => d.low));
+                const recentHigh = Math.max(...formattedData.slice(-50).map((d:any) => d.high));
                 const range = recentHigh - recentLow;
                 
                 let level50, level618;
@@ -241,7 +242,7 @@ export function CandlestickChart() {
 
         const priceInterval = setInterval(async () => {
             try {
-                const tickerData = await getTickers({ category: 'linear', symbol: 'BTCUSDT' });
+                const tickerData = await getTickers({ symbol: 'BTCUSDT' });
                  if (tickerData && tickerData.length > 0) {
                     const newTicker = tickerData[0];
                     setTicker(newTicker);

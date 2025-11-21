@@ -8,14 +8,15 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { getOpenOrders, getPositions } from "@/lib/services/bybit-service";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Suspense } from "react";
 import { Skeleton } from "../ui/skeleton";
+// Updated to a new server action that calls our internal API
+import { getBybitOpenOrders, getBybitPositions } from "@/lib/actions";
 
 async function PositionsTable() {
-  const positions = await getPositions();
+  const positions = await getBybitPositions();
   
   if (!positions || positions.length === 0) {
     return <p className="text-sm text-muted-foreground">No open positions.</p>
@@ -67,7 +68,7 @@ async function PositionsTable() {
 }
 
 async function OrdersTable() {
-    const openOrders = await getOpenOrders();
+    const openOrders = await getBybitOpenOrders();
     if (!openOrders || openOrders.length === 0) {
         return <p className="text-sm text-muted-foreground">No open orders.</p>
     }
@@ -79,7 +80,7 @@ async function OrdersTable() {
                 <TableHead>Side</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead className="text-right">Price</TableHead>
-                <TableHead className="text-right">Status</TableHead>
+                <TableHead>Status</TableHead>
             </TableRow>
             </TableHeader>
             <TableBody>
