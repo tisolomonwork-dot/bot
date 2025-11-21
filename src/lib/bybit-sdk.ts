@@ -15,15 +15,19 @@ interface BybitResponse {
 
 function createSignature(params: string, timestamp: string): string {
     if (!BYBIT_API_SECRET) {
+        // This case is handled in bybitRequest, but as a safeguard.
         return '';
     }
+    // As per Bybit V5 API docs: timestamp + apiKey + recvWindow + (queryParams || requestBody)
     const paramStr = timestamp + BYBIT_API_KEY + "5000" + params;
     return CryptoJS.HmacSHA256(paramStr, BYBIT_API_SECRET).toString(CryptoJS.enc.Hex);
 }
 
 async function bybitRequest(endpoint: string, method: string = "GET", body?: any): Promise<any> {
   if (!BYBIT_API_KEY || !BYBIT_API_SECRET) {
-    throw new Error("Bybit API key and secret are not configured on the server.");
+    console.error("Bybit API key and secret are not configured on the server.");
+    // Return a structured error that the client can understand
+    return { retCode: 10001, retMsg: "Bybit API key and secret are not configured on the server.", result: null };
   }
 
   const timestamp = Date.now().toString();
@@ -64,20 +68,24 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
   const response = await fetch(url, options);
   const text = await response.text();
 
+  // This is the crucial part: Check for non-OK responses (like 403)
+  // which often return HTML, not JSON.
   if (!response.ok) {
     const errorMsg = `Bybit API Error for endpoint ${endpoint}: Received non-JSON response. Status: ${response.status} ${text.slice(0, 100)}`;
     console.error(errorMsg);
-    throw new Error(`Bybit API returned a non-JSON response (likely an HTML error page). Status: ${response.status}`);
+    throw new Error(`Bybit API returned status ${response.status}. Check Vercel logs for details.`);
   }
   
   try {
     const data: BybitResponse = JSON.parse(text);
     if (data.retCode !== 0) {
       console.error(`Bybit API Error for endpoint ${endpoint}:`, data.retMsg, 'Params:', body);
+      // Throw an error that the client-side fetcher can catch and display
       throw new Error(data.retMsg || 'Bybit API request failed.');
     }
     return data.result;
   } catch (e) {
+    // This catches errors from JSON.parse if the response is not valid JSON
     console.error(`Bybit API Error for endpoint ${endpoint}: Failed to parse JSON response.`, text.slice(0, 200));
     throw new Error("Failed to parse JSON response from Bybit.");
   }
@@ -85,6 +93,8 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
 
 export async function getBalance() {
   const result = await bybitRequest("/v5/account/wallet-balance", "GET", { accountType: "UNIFIED" });
+  // The API returns a list, we want the first (and usually only) item.
+  // The structure is { list: [ { ... balance info ... } ] }
   return result?.list?.[0] || { totalWalletBalance: '0' };
 }
 
@@ -96,8 +106,9 @@ export async function getTickers(params: { category: 'linear' | 'spot', symbol: 
 export async function getPositions() {
   const result = await bybitRequest("/v5/position/list", "GET", {
     category: "linear",
-    settleCoin: "USDT"
+    settleCoin: "USDT" // Or whatever coin you are trading with
   });
+  // Filter out positions that are closed (size is 0)
   return (result?.list || []).filter((pos: any) => parseFloat(pos.size) > 0);
 }
 
@@ -117,6 +128,8 @@ export async function placeOrder(order: {
     takeProfit?: number
 }) {
     const { symbol, side, qty, stopLoss, takeProfit } = order;
+    // For linear perpetuals, positionIdx is used to distinguish between long and short mode.
+    // 1 for long, 2 for short.
     const positionIdx = side === "Buy" ? 1 : 2;
     
     const orderParams: any = {
@@ -136,7 +149,7 @@ export async function placeOrder(order: {
       orderParams.takeProfit = takeProfit.toString();
     }
     
-    // The bybitRequest function now throws on error, so we don't need to check retCode here.
+    // We now return the whole response object from bybitRequest, which includes retCode and retMsg
     return bybitRequest("/v5/order/create", "POST", orderParams);
 }
 
@@ -147,6 +160,8 @@ export async function getKlines(params: {
     limit: number;
 }) {
     const result = await bybitRequest('/v5/market/kline', 'GET', params);
+    // Bybit returns kline data as an array of arrays. We map it to an array of objects.
+    // [timestamp, open, high, low, close, volume, turnover]
     return (result?.list || []).map((k: any) => ({
         date: new Date(parseInt(k[0])).toISOString(),
         open: parseFloat(k[1]),
@@ -154,5 +169,5 @@ export async function getKlines(params: {
         low: parseFloat(k[3]),
         close: parseFloat(k[4]),
         volume: parseFloat(k[5]),
-    })).reverse();
+    })).reverse(); // Reverse to have the most recent data last
 }

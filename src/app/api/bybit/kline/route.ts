@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const klines = await getKlines({
       category: 'linear',
       symbol,
-      interval: interval as any, // Let's trust the client for now, can add validation
+      interval: interval as any, 
       limit: parseInt(limit),
     });
     return NextResponse.json(klines);

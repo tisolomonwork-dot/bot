@@ -3,12 +3,12 @@
 import { aiAnswerTradingQuestions } from '@/ai/flows/ai-answer-trading-questions';
 import { provideActionableInsights } from '@/ai/flows/ai-provide-actionable-insights';
 import { summarizeMarketSignals } from '@/ai/flows/ai-summarize-market-signals';
-import { getBalance, getPositions, placeOrder as placeBybitOrder } from './services/bybit-service';
+// We use the client-side services now, which call our internal API routes.
+import { getBalance, getPositions, getOpenOrders as getBybitOpenOrdersService, placeOrder as placeBybitOrderService } from './services/bybit-service';
 
-// These new server actions call our internal API routes, abstracting the logic.
-// They are safe to be used in components as they don't contain any direct SDK calls.
 
 export async function getBybitBalance() {
+  // Directly calling the client-side service is fine here as it's just a fetch call
   return getBalance();
 }
 
@@ -17,16 +17,13 @@ export async function getBybitPositions() {
 }
 
 export async function getBybitOpenOrders() {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/bybit/orders`, { cache: 'no-store' });
-  if (!res.ok) {
-    return [];
-  }
-  return res.json();
+    return getBybitOpenOrdersService();
 }
 
 
 export async function getActionableInsights() {
   try {
+    // These functions now call our internal Next.js API routes
     const [balance, positions] = await Promise.all([
       getBalance(),
       getPositions(),
@@ -47,9 +44,9 @@ export async function getActionableInsights() {
 
     const insights = await provideActionableInsights({
       portfolioValue: balance,
-      marketConditions: 'Market is volatile with BTC showing strength. Analyze the provided positions to determine overall market sentiment.', // The AI can infer more from the live data.
+      marketConditions: 'Market is volatile with BTC showing strength. Analyze the provided positions to determine overall market sentiment.',
       openPositions: positionContext,
-      riskPreference: 'normal', // This can be updated later to pull from user settings.
+      riskPreference: 'normal', 
     });
     return insights;
   } catch (error) {

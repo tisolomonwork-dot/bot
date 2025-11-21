@@ -14,7 +14,7 @@ async function fetcher(url: string, options: RequestInit = {}) {
 }
 
 
-export async function getBalance() {
+export async function getBalance(): Promise<number> {
   try {
     const data = await fetcher('/api/bybit/balance');
     return data.totalWalletBalance ? parseFloat(data.totalWalletBalance) : 0;
@@ -24,7 +24,7 @@ export async function getBalance() {
   }
 }
 
-export async function getPositions() {
+export async function getPositions(): Promise<any[]> {
   try {
     return await fetcher('/api/bybit/positions');
   } catch (error) {
@@ -33,12 +33,21 @@ export async function getPositions() {
   }
 }
 
+export async function getOpenOrders(): Promise<any[]> {
+  try {
+    return await fetcher('/api/bybit/orders');
+  } catch (error) {
+    console.error("Failed to fetch open orders:", error);
+    return [];
+  }
+}
+
 
 export async function getKlines(params: {
     symbol: string;
     interval: '1' | '3' | '5' | '15' | '30' | '60' | '120' | '240' | '360' | '720' | 'D' | 'W' | 'M';
     limit: number;
-}) {
+}): Promise<any[]> {
     const query = new URLSearchParams({
         symbol: params.symbol,
         interval: params.interval,
@@ -53,7 +62,7 @@ export async function getKlines(params: {
     }
 }
 
-export async function getTickers(params: { symbol: string }) {
+export async function getTickers(params: { symbol: string }): Promise<any[]> {
     const query = new URLSearchParams({ symbol: params.symbol }).toString();
     try {
         return await fetcher(`/api/bybit/tickers?${query}`);
