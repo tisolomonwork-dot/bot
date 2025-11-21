@@ -25,7 +25,6 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
   if (!BYBIT_API_KEY || !BYBIT_API_SECRET) {
     const errorMsg = "Bybit API key and/or secret are not configured on the server.";
     console.error(errorMsg);
-    // Return a structured error that the client can understand
     return { retCode: 10001, retMsg: errorMsg, result: null, time: Date.now() };
   }
 
@@ -59,32 +58,27 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
 
   if (method === "POST" && body) {
     headers["Content-Type"] = "application/json";
-    options.body = params; // Use the same stringified params used for signature
+    options.body = params;
   }
   
   try {
     const response = await fetch(url, options);
 
-    // Handle non-JSON responses gracefully
     const contentType = response.headers.get("content-type");
     if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
         const errorMsg = `Bybit API Error for endpoint ${endpoint}: Received non-JSON response. Status: ${response.status} ${text.slice(0, 100)}`;
         console.error(errorMsg);
-        // Return a structured error to avoid crashing the client-side service
         return { retCode: response.status, retMsg: `Bybit API returned non-JSON response. Check server logs.`, result: null, time: Date.now() };
     }
 
     const data: BybitResponse = await response.json();
     
-    // The API route handler will now check for non-zero retCode, so we can pass it through.
     return data;
 
   } catch (error: any) {
-    // This catches network errors or other fetch-related issues
     const errorMsg = `Failed during Bybit request to ${endpoint}: ${error.message}`;
     console.error(errorMsg);
-    // Re-throw to be caught by the API route handler, but as a structured error
     return { retCode: 500, retMsg: errorMsg, result: null, time: Date.now() };
   }
 }
