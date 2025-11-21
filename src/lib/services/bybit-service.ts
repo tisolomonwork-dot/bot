@@ -1,14 +1,26 @@
-// This file is now a client-side service to call our own Next.js API routes.
+// This file is a client-side service to call our own Next.js API routes.
 // It does NOT contain any secret keys and is safe for the client.
 
+// Helper to determine the base URL for API requests.
+// On the server, it uses the Vercel URL. In the browser, it uses a relative path.
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') {
+    // Client-side requests can use a relative path
+    return '';
+  }
+  // Server-side requests need an absolute path
+  return `https://${process.env.VERCEL_URL || 'localhost:3000'}`;
+};
+
 async function fetcher(url: string, options: RequestInit = {}) {
-    const res = await fetch(url, {
+    const fullUrl = `${getBaseUrl()}${url}`;
+    const res = await fetch(fullUrl, {
         ...options,
-        cache: 'no-store', // Ensure fresh data
+        cache: 'no-store',
     });
     if (!res.ok) {
         const errorData = await res.json().catch(() => ({ message: 'An unknown API error occurred.' }));
-        throw new Error(errorData.error || `Request failed with status ${res.status}`);
+        throw new Error(errorData.error || `Request to ${url} failed with status ${res.status}`);
     }
     return res.json();
 }
@@ -20,7 +32,7 @@ export async function getBalance(): Promise<number> {
     return data.totalWalletBalance ? parseFloat(data.totalWalletBalance) : 0;
   } catch (error) {
     console.error("Failed to fetch balance:", error);
-    return 0; // Return a safe default
+    return 0; 
   }
 }
 
@@ -29,7 +41,7 @@ export async function getPositions(): Promise<any[]> {
     return await fetcher('/api/bybit/positions');
   } catch (error) {
     console.error("Failed to fetch positions:", error);
-    return []; // Return a safe default
+    return [];
   }
 }
 
@@ -45,7 +57,7 @@ export async function getOpenOrders(): Promise<any[]> {
 
 export async function getKlines(params: {
     symbol: string;
-    interval: '1' | '3' | '5' | '15' | '30' | '60' | '120' | '240' | '360' | '720' | 'D' | 'W' | 'M';
+    interval: string;
     limit: number;
 }): Promise<any[]> {
     const query = new URLSearchParams({
@@ -81,19 +93,12 @@ export async function placeOrder(order: {
     stopLoss?: number, 
     takeProfit?: number
 }) {
-    const response = await fetch('/api/bybit/place-order', {
+    // This function will throw an error on failure, which will be caught by the form handler.
+    const result = await fetcher('/api/bybit/place-order', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(order),
     });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-        throw new Error(result.error || 'Failed to place order.');
-    }
     
     // The API route now ensures retCode is 0, so we can just return the result
     return result;
