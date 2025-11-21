@@ -24,10 +24,15 @@ export function ActiveTrade() {
     const fetchBtcPosition = async () => {
         try {
             const positions = await getPositions();
-            const position = positions.find((p: any) => p.symbol === 'BTCUSDT');
-            setBtcPosition(position);
+            if (positions) {
+                const position = positions.find((p: any) => p.symbol === 'BTCUSDT');
+                setBtcPosition(position);
+            } else {
+                setBtcPosition(undefined);
+            }
         } catch (error) {
             console.error("Failed to fetch active trade:", error);
+            setBtcPosition(undefined);
         } finally {
             setLoading(false);
         }

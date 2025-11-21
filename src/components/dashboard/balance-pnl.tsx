@@ -15,11 +15,24 @@ export function BalancePnl() {
   const fetchData = async () => {
     try {
       const [balanceData, positionsData] = await Promise.all([getBalance(), getPositions()]);
-      const pnl = positionsData.reduce((acc, pos) => acc + parseFloat(pos.unrealisedPnl || '0'), 0);
-      setBalance(balanceData);
-      setTotalPnl(pnl);
+      
+      if (balanceData !== null) {
+          setBalance(balanceData);
+      } else {
+          setBalance(0); // Default to 0 if API fails
+      }
+
+      if (positionsData && positionsData.length > 0) {
+          const pnl = positionsData.reduce((acc, pos) => acc + parseFloat(pos.unrealisedPnl || '0'), 0);
+          setTotalPnl(pnl);
+      } else {
+          setTotalPnl(0); // Default to 0 if API fails
+      }
+
     } catch (error) {
       console.error("Failed to fetch balance and PnL:", error);
+      setBalance(0);
+      setTotalPnl(0);
     } finally {
         if (loading) {
             setLoading(false);

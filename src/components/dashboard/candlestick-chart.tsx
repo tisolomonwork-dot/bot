@@ -58,87 +58,93 @@ export function CandlestickChart() {
         const series = candlestickSeriesRef.current;
         const maSeries = ma200SeriesRef.current;
 
-        const [klinesData, tickerData, positionsData] = await Promise.all([
-            getKlines({
-                category: 'linear',
-                symbol: 'BTCUSDT',
-                interval: '30',
-                limit: 300,
-            }),
-            getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
-            getPositions(),
-        ]);
-        
-        const btcPosition = positionsData.find(p => p.symbol === 'BTCUSDT');
-        setPosition(btcPosition);
-
-        if (klinesData && klinesData.length > 0) {
-            const formattedData = klinesData.map(d => ({
-                time: (new Date(d.date).getTime() / 1000) as Time,
-                open: d.open,
-                high: d.high,
-                low: d.low,
-                close: d.close,
-            }));
-            series.setData(formattedData);
-
-            const ma200Data = calculateMA(formattedData, 200);
-            maSeries.setData(ma200Data);
-
-            const lastPrice = formattedData[formattedData.length - 1]?.close;
-            const lastMa200 = ma200Data.filter(d => !isNaN(d.value)).pop()?.value;
-
-            let currentSentiment: 'Bullish' | 'Bearish' | null = null;
-            if (lastPrice && lastMa200) {
-                currentSentiment = lastPrice > lastMa200 ? 'Bullish' : 'Bearish';
-                setMarketSentiment(currentSentiment);
-            } else {
-                setMarketSentiment(null);
+        try {
+            const [klinesData, tickerData, positionsData] = await Promise.all([
+                getKlines({
+                    category: 'linear',
+                    symbol: 'BTCUSDT',
+                    interval: '30',
+                    limit: 300,
+                }),
+                getTickers({ category: 'linear', symbol: 'BTCUSDT' }),
+                getPositions(),
+            ]);
+            
+            if (positionsData) {
+                const btcPosition = positionsData.find(p => p.symbol === 'BTCUSDT');
+                setPosition(btcPosition);
             }
 
-            const recentLow = Math.min(...formattedData.slice(-50).map(d => d.low));
-            const recentHigh = Math.max(...formattedData.slice(-50).map(d => d.high));
-            const range = recentHigh - recentLow;
-            
-            let level50, level618;
+            if (klinesData && klinesData.length > 0) {
+                const formattedData = klinesData.map(d => ({
+                    time: (new Date(d.date).getTime() / 1000) as Time,
+                    open: d.open,
+                    high: d.high,
+                    low: d.low,
+                    close: d.close,
+                }));
+                series.setData(formattedData);
 
-            if (currentSentiment === 'Bullish') { // Above 200MA, pullback from high
-                level50 = recentHigh - (range * 0.5);
-                level618 = recentHigh - (range * 0.618);
-            } else { // Bearish, below 200MA, rally from low
-                level50 = recentLow + (range * 0.5);
-                level618 = recentLow + (range * 0.618);
+                const ma200Data = calculateMA(formattedData, 200);
+                maSeries.setData(ma200Data);
+
+                const lastPrice = formattedData[formattedData.length - 1]?.close;
+                const lastMa200 = ma200Data.filter(d => !isNaN(d.value)).pop()?.value;
+
+                let currentSentiment: 'Bullish' | 'Bearish' | null = null;
+                if (lastPrice && lastMa200) {
+                    currentSentiment = lastPrice > lastMa200 ? 'Bullish' : 'Bearish';
+                    setMarketSentiment(currentSentiment);
+                } else {
+                    setMarketSentiment(null);
+                }
+
+                const recentLow = Math.min(...formattedData.slice(-50).map(d => d.low));
+                const recentHigh = Math.max(...formattedData.slice(-50).map(d => d.high));
+                const range = recentHigh - recentLow;
+                
+                let level50, level618;
+
+                if (currentSentiment === 'Bullish') { // Above 200MA, pullback from high
+                    level50 = recentHigh - (range * 0.5);
+                    level618 = recentHigh - (range * 0.618);
+                } else { // Bearish, below 200MA, rally from low
+                    level50 = recentLow + (range * 0.5);
+                    level618 = recentLow + (range * 0.618);
+                }
+                
+                if (retracementLinesRef.current.line50) series.removePriceLine(retracementLinesRef.current.line50);
+                retracementLinesRef.current.line50 = series.createPriceLine({
+                    price: level50,
+                    color: 'rgba(156, 163, 175, 0.4)',
+                    lineWidth: 1,
+                    lineStyle: LineStyle.Dotted,
+                    axisLabelVisible: true,
+                    title: '50%',
+                });
+                
+                if (retracementLinesRef.current.line618) series.removePriceLine(retracementLinesRef.current.line618);
+                retracementLinesRef.current.line618 = series.createPriceLine({
+                    price: level618,
+                    color: 'rgba(156, 163, 175, 0.4)',
+                    lineWidth: 1,
+                    lineStyle: LineStyle.Dotted,
+                    axisLabelVisible: true,
+                    title: '61.8%',
+                });
+
+                chartApiRef.current?.timeScale().fitContent();
             }
-            
-            if (retracementLinesRef.current.line50) series.removePriceLine(retracementLinesRef.current.line50);
-            retracementLinesRef.current.line50 = series.createPriceLine({
-                price: level50,
-                color: 'rgba(156, 163, 175, 0.4)',
-                lineWidth: 1,
-                lineStyle: LineStyle.Dotted,
-                axisLabelVisible: true,
-                title: '50%',
-            });
-            
-            if (retracementLinesRef.current.line618) series.removePriceLine(retracementLinesRef.current.line618);
-            retracementLinesRef.current.line618 = series.createPriceLine({
-                price: level618,
-                color: 'rgba(156, 163, 175, 0.4)',
-                lineWidth: 1,
-                lineStyle: LineStyle.Dotted,
-                axisLabelVisible: true,
-                title: '61.8%',
-            });
 
-            chartApiRef.current?.timeScale().fitContent();
-        }
-
-        if (tickerData.length > 0) {
-            setTicker(tickerData[0]);
-        }
-        
-        if(loading){
-            setLoading(false);
+            if (tickerData && tickerData.length > 0) {
+                setTicker(tickerData[0]);
+            }
+        } catch (error) {
+            console.error("Failed to fetch chart data:", error);
+        } finally {
+            if(loading){
+                setLoading(false);
+            }
         }
     }, [loading]);
 
@@ -232,7 +238,7 @@ export function CandlestickChart() {
 
         const priceInterval = setInterval(async () => {
              const tickerData = await getTickers({ category: 'linear', symbol: 'BTCUSDT' });
-             if (tickerData.length > 0) {
+             if (tickerData && tickerData.length > 0) {
                 const newTicker = tickerData[0];
                 setTicker(newTicker);
                 
