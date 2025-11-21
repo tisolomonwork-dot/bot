@@ -22,20 +22,20 @@ function createSignature(params: string, timestamp: string): string {
 }
 
 async function bybitRequest(endpoint: string, method: string = "GET", body?: any): Promise<BybitResponse> {
-  const timestamp = Date.now().toString();
-  let url = `${BYBIT_BASE_URL}${endpoint}`;
-  let params = "";
-
   if (!BYBIT_API_KEY || !BYBIT_API_SECRET) {
-    const errorResponse = {
+    const errorMsg = "API key and secret are not configured on the server.";
+    console.error(errorMsg);
+    return {
         retCode: 10001,
-        retMsg: "API key and secret are not configured on the server.",
+        retMsg: errorMsg,
         result: null,
         time: Date.now()
     };
-    console.error(errorResponse.retMsg);
-    return errorResponse as any;
   }
+
+  const timestamp = Date.now().toString();
+  let url = `${BYBIT_BASE_URL}${endpoint}`;
+  let params = "";
   
   if (method === "GET" && body) {
     const queryParams = new URLSearchParams(body).toString();
@@ -73,7 +73,8 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
     const text = await response.text();
 
     if (!response.ok) {
-        console.error(`Bybit API Error for endpoint ${endpoint}: Received non-JSON response. Status: ${response.status}`, text.slice(0, 200));
+        const errorMsg = `Bybit API Error for endpoint ${endpoint}: Received non-JSON response. Status: ${response.status}`;
+        console.error(errorMsg, text.slice(0, 200));
         return {
             retCode: response.status,
             retMsg: `Bybit API returned a non-JSON response (likely an HTML error page). Status: ${response.status}`,
@@ -82,11 +83,21 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
         }
     }
     
-    const data = JSON.parse(text);
-    if (data.retCode !== 0) {
-      console.error(`Bybit API Error for endpoint ${endpoint}:`, data.retMsg, 'Params:', body);
+    try {
+        const data = JSON.parse(text);
+        if (data.retCode !== 0) {
+          console.error(`Bybit API Error for endpoint ${endpoint}:`, data.retMsg, 'Params:', body);
+        }
+        return data;
+    } catch (e) {
+        console.error(`Bybit API Error for endpoint ${endpoint}: Failed to parse JSON response.`, text.slice(0, 200));
+        return {
+            retCode: 500,
+            retMsg: "Failed to parse JSON response from Bybit.",
+            result: null,
+            time: Date.now()
+        };
     }
-    return data;
   } catch (error) {
     console.error(`Failed to fetch from Bybit API endpoint ${endpoint}:`, error);
     return {
@@ -99,7 +110,6 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
 }
 
 export async function getBalance() {
-  if (!BYBIT_API_KEY || !BYBIT_API_SECRET) return 0;
   const result = await bybitRequest("/v5/account/wallet-balance", "GET", { accountType: "UNIFIED" });
   if (result.retCode === 0 && result.result?.list?.[0]) {
     return parseFloat(result.result.list[0].totalWalletBalance || "0");
@@ -108,7 +118,6 @@ export async function getBalance() {
 }
 
 export async function getTickers(params: { category: 'linear' | 'spot', symbol: string }) {
-    if (!BYBIT_API_KEY || !BYBIT_API_SECRET) return [];
     const result = await bybitRequest('/v5/market/tickers', 'GET', params);
     if (result.retCode === 0 && result.result?.list) {
         return result.result.list;
@@ -118,7 +127,6 @@ export async function getTickers(params: { category: 'linear' | 'spot', symbol: 
 
 
 export async function getPositions() {
-  if (!BYBIT_API_KEY || !BYBIT_API_SECRET) return [];
   const result = await bybitRequest("/v5/position/list", "GET", {
     category: "linear",
     settleCoin: "USDT"
@@ -130,7 +138,6 @@ export async function getPositions() {
 }
 
 export async function getOpenOrders() {
-    if (!BYBIT_API_KEY || !BYBIT_API_SECRET) return [];
     try {
       const result = await bybitRequest("/v5/order/realtime", "GET", { 
         category: "linear",
@@ -149,7 +156,6 @@ export async function getOpenOrders() {
 
 
 export async function getClosedTrades() {
-    if (!BYBIT_API_KEY || !BYBIT_API_SECRET) return [];
     try {
       const result = await bybitRequest("/v5/order/history", "GET", { 
         category: "linear", 
@@ -176,14 +182,6 @@ export async function placeOrder(order: {
     stopLoss?: number, 
     takeProfit?: number
 }) {
-    if (!BYBIT_API_KEY || !BYBIT_API_SECRET) {
-      return {
-        retCode: 10001,
-        retMsg: "API key and secret are not configured on the server.",
-        result: null
-      };
-    }
-
     try {
         const { symbol, side, qty, stopLoss, takeProfit } = order;
         const positionIdx = side === "Buy" ? 1 : 2;
@@ -224,7 +222,6 @@ export async function getKlines(params: {
     end?: number;
     limit?: number;
 }) {
-    if (!BYBIT_API_KEY || !BYBIT_API_SECRET) return [];
     const result = await bybitRequest('/v5/market/kline', 'GET', params);
     if (result.retCode === 0 && result.result?.list) {
         return result.result.list.map((k: any) => ({

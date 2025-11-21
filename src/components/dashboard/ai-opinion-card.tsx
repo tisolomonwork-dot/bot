@@ -18,16 +18,25 @@ const riskColorMap = {
 export function AiOpinionCard() {
   const [insights, setInsights] = useState<ActionableInsightsOutput | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string|null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   const fetchInsights = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setLoading(true);
       const result = await getActionableInsights();
-      setInsights(result);
-      setLastUpdated(new Date());
+      if (result) {
+        setInsights(result);
+        setLastUpdated(new Date());
+      } else {
+        // The action returns null on API failure now
+        setError("AI insights are currently unavailable.");
+        setInsights(null);
+      }
     } catch (error) {
       console.error("Failed to fetch AI insights:", error);
+      setError("Could not load AI insights at the moment.");
       setInsights(null);
     } finally {
       setLoading(false);
@@ -54,23 +63,7 @@ export function AiOpinionCard() {
         </Card>
     );
   }
-
-  if (!insights) {
-    return (
-      <Card>
-        <CardHeader>
-             <CardTitle className="flex items-center gap-2 text-card-foreground">
-                <Bot className="h-5 w-5" />
-                A.I. Opinion
-            </CardTitle>
-        </CardHeader>
-        <CardContent>
-            <p className="text-destructive text-center p-4">Could not load AI insights at the moment. Please try again later.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
+  
   return (
     <Card>
         <CardHeader className="pb-3">
@@ -81,13 +74,16 @@ export function AiOpinionCard() {
             </CardTitle>
             {loading && <CircleDashed className="h-4 w-4 animate-spin text-muted-foreground" />}
         </div>
-        <CardDescription className="text-balance">
-            {insights.marketMood && `Market mood is currently ${insights.marketMood}.`} Here are your top suggested actions.
-            {lastUpdated && <span className="block text-xs mt-1">Last updated: {lastUpdated.toLocaleTimeString()}</span>}
-        </CardDescription>
+        {insights && (
+            <CardDescription className="text-balance">
+                {insights.marketMood && `Market mood is currently ${insights.marketMood}.`} Here are your top suggested actions.
+                {lastUpdated && <span className="block text-xs mt-1">Last updated: {lastUpdated.toLocaleTimeString()}</span>}
+            </CardDescription>
+        )}
         </CardHeader>
         <CardContent className="grid gap-3">
-            {insights.suggestedActions.slice(0, 3).map((item, index) => (
+            {error && <p className="text-destructive text-center p-4 text-sm">{error}</p>}
+            {insights?.suggestedActions.slice(0, 3).map((item, index) => (
             <div key={index} className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors">
                 <div className="flex items-center gap-3">
                     <Zap className="h-4 w-4 text-muted-foreground" />

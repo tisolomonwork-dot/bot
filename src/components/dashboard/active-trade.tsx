@@ -23,15 +23,17 @@ export function ActiveTrade() {
     const [error, setError] = useState<string | null>(null);
 
     const fetchBtcPosition = async () => {
+        setLoading(true);
+        setError(null);
         try {
             const positions = await getPositions();
-            if (positions && positions.length > 0) {
-                const position = positions.find((p: any) => p.symbol === 'BTCUSDT');
+            // The service now returns an empty array on error, so we can simplify this
+            const position = positions.find((p: any) => p.symbol === 'BTCUSDT');
+            if (position) {
                 setBtcPosition(position);
             } else {
                 setBtcPosition(undefined);
             }
-            setError(null);
         } catch (error) {
             console.error("Failed to fetch active trade:", error);
             setError("Could not load trade data.");
@@ -43,7 +45,7 @@ export function ActiveTrade() {
 
     useEffect(() => {
         fetchBtcPosition();
-        const interval = setInterval(fetchBtcPosition, 5000);
+        const interval = setInterval(fetchBtcPosition, 30000); // Increased interval
         return () => clearInterval(interval);
     }, []);
 

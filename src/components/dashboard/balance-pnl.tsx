@@ -11,38 +11,37 @@ export function BalancePnl() {
   const [balance, setBalance] = useState<number | null>(null);
   const [totalPnl, setTotalPnl] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchData = async () => {
+    setLoading(true);
+    setError(null);
     try {
-      const [balanceData, positionsData] = await Promise.all([getBalance(), getPositions()]);
+      // Promise.all will fail if one promise rejects.
+      // We want to attempt both and handle partial success.
+      const balanceData = await getBalance();
+      const positionsData = await getPositions();
       
-      if (balanceData !== null) {
-          setBalance(balanceData);
-      } else {
-          setBalance(0);
-      }
-
-      if (positionsData && positionsData.length > 0) {
-          const pnl = positionsData.reduce((acc, pos) => acc + parseFloat(pos.unrealisedPnl || '0'), 0);
-          setTotalPnl(pnl);
-      } else {
-          setTotalPnl(0);
-      }
+      // getBalance returns 0 on error, which is a valid state
+      setBalance(balanceData);
+      
+      // getPositions returns [] on error, which is a valid state
+      const pnl = positionsData.reduce((acc, pos) => acc + parseFloat(pos.unrealisedPnl || '0'), 0);
+      setTotalPnl(pnl);
 
     } catch (error) {
       console.error("Failed to fetch balance and PnL:", error);
+      setError("Could not load data.");
       setBalance(0);
       setTotalPnl(0);
     } finally {
-        if (loading) {
-            setLoading(false);
-        }
+        setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchData(); // Initial fetch
-    const interval = setInterval(fetchData, 5000); // Refresh every 5 seconds
+    const interval = setInterval(fetchData, 30000); // Refresh every 30 seconds
     return () => clearInterval(interval); // Cleanup on unmount
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -54,6 +53,29 @@ export function BalancePnl() {
         <Skeleton className="h-[76px] rounded-lg" />
       </>
     );
+  }
+
+  if (error) {
+    return (
+        <>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xs font-normal text-muted-foreground">Total Balance</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-destructive">{error}</p>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-xs font-normal text-muted-foreground">Unrealized P&L</CardTitle>
+                </CardHeader>
+                <CardContent>
+                     <p className="text-sm text-destructive">{error}</p>
+                </CardContent>
+            </Card>
+        </>
+    )
   }
 
   return (
