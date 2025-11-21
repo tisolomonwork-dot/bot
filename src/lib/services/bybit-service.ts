@@ -70,8 +70,9 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
 
   try {
     const response = await fetch(url, options);
+    const text = await response.text();
+
     if (!response.ok) {
-        const text = await response.text();
         console.error(`Bybit API Error for endpoint ${endpoint}: Received non-JSON response. Status: ${response.status}`, text.slice(0, 200));
         return {
             retCode: response.status,
@@ -80,7 +81,8 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
             time: Date.now()
         }
     }
-    const data = await response.json();
+    
+    const data = JSON.parse(text);
     if (data.retCode !== 0) {
       console.error(`Bybit API Error for endpoint ${endpoint}:`, data.retMsg, 'Params:', body);
     }

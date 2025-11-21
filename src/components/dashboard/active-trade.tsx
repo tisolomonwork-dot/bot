@@ -20,6 +20,7 @@ type BtcPosition = {
 export function ActiveTrade() {
     const [btcPosition, setBtcPosition] = useState<BtcPosition>(undefined);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     const fetchBtcPosition = async () => {
         try {
@@ -30,9 +31,11 @@ export function ActiveTrade() {
             } else {
                 setBtcPosition(undefined);
             }
+            setError(null);
         } catch (error) {
             console.error("Failed to fetch active trade:", error);
-            setBtcPosition(undefined); // Gracefully handle error
+            setError("Could not load trade data.");
+            setBtcPosition(undefined);
         } finally {
             setLoading(false);
         }
@@ -46,6 +49,20 @@ export function ActiveTrade() {
 
   if (loading) {
     return <Skeleton className="h-[92px] rounded-lg" />;
+  }
+  
+  if (error) {
+      return (
+        <Card>
+          <CardHeader className="pb-4">
+              <CardTitle>Active BTCUSDT Trade</CardTitle>
+              <CardDescription>Your current open position for Bitcoin.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex items-center justify-center pb-4">
+              <p className="text-sm text-destructive">{error}</p>
+          </CardContent>
+        </Card>
+      )
   }
 
   if (!btcPosition) {
