@@ -13,6 +13,14 @@ interface BybitResponse {
   time: number;
 }
 
+function createSignature(params: string, timestamp: string): string {
+    if (!BYBIT_API_SECRET) {
+        return '';
+    }
+    const paramStr = timestamp + BYBIT_API_KEY + "5000" + params;
+    return CryptoJS.HmacSHA256(paramStr, BYBIT_API_SECRET).toString(CryptoJS.enc.Hex);
+}
+
 async function bybitRequest(endpoint: string, method: string = "GET", body?: any): Promise<BybitResponse> {
   const timestamp = Date.now().toString();
   let url = `${BYBIT_BASE_URL}${endpoint}`;
