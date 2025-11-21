@@ -23,7 +23,8 @@ export function ActiveTrade() {
     const [error, setError] = useState<string | null>(null);
 
     const fetchBtcPosition = async () => {
-        setLoading(true);
+        // Don't reset loading on interval fetches to avoid UI flicker
+        // setLoading(true); 
         setError(null);
         try {
             const positions = await getPositions();
