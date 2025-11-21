@@ -13,14 +13,6 @@ interface BybitResponse {
   time: number;
 }
 
-function createSignature(params: string, timestamp: string): string {
-    if (!BYBIT_API_KEY || !BYBIT_API_SECRET) {
-        throw new Error("Bybit API Key or Secret is not defined in environment variables.");
-    }
-    const message = timestamp + BYBIT_API_KEY + "5000" + params;
-    return CryptoJS.HmacSHA256(message, BYBIT_API_SECRET).toString();
-}
-
 async function bybitRequest(endpoint: string, method: string = "GET", body?: any): Promise<BybitResponse> {
   const timestamp = Date.now().toString();
   let url = `${BYBIT_BASE_URL}${endpoint}`;
@@ -36,7 +28,7 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
     console.error(errorResponse.retMsg);
     return errorResponse as any;
   }
-
+  
   if (method === "GET" && body) {
     const queryParams = new URLSearchParams(body).toString();
     params = queryParams;
@@ -61,7 +53,7 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
   const options: RequestInit = {
     method,
     headers,
-    cache: 'no-store' // Ensure fresh data
+    cache: 'no-store'
   };
 
   if (method === "POST" && body) {
@@ -71,7 +63,6 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
   try {
     const response = await fetch(url, options);
     if (!response.ok) {
-        // This handles non-JSON responses like HTML error pages
         const text = await response.text();
         console.error(`Bybit API Error for endpoint ${endpoint}: Received non-JSON response. Status: ${response.status}`, text.slice(0, 200));
         return {
@@ -88,16 +79,12 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
     return data;
   } catch (error) {
     console.error(`Failed to fetch from Bybit API endpoint ${endpoint}:`, error);
-    // This catches network errors or if response.json() fails
-    if (error instanceof SyntaxError) { // This happens if the response is not valid JSON
-         return {
-            retCode: 500,
-            retMsg: `Bybit API request failed: Could not parse JSON response.`,
-            result: null,
-            time: Date.now()
-        }
-    }
-    throw new Error(`Bybit API request failed: ${error instanceof Error ? error.message : String(error)}`);
+    return {
+        retCode: 500,
+        retMsg: `Bybit API request failed: ${error instanceof Error ? error.message : "An unknown error occurred."}`,
+        result: null,
+        time: Date.now()
+    };
   }
 }
 
@@ -186,27 +173,37 @@ export async function placeOrder(order: {
         result: null
       };
     }
-    const { symbol, side, qty, stopLoss, takeProfit } = order;
-    const positionIdx = side === "Buy" ? 1 : 2;
-      
-    const orderParams: any = {
-      category: "linear",
-      symbol,
-      side,
-      orderType: "Market",
-      qty: qty.toString(),
-      positionIdx,
-    };
-    
-    if (stopLoss) {
-      orderParams.stopLoss = stopLoss.toString();
+
+    try {
+        const { symbol, side, qty, stopLoss, takeProfit } = order;
+        const positionIdx = side === "Buy" ? 1 : 2;
+        
+        const orderParams: any = {
+        category: "linear",
+        symbol,
+        side,
+        orderType: "Market",
+        qty: qty.toString(),
+        positionIdx,
+        };
+        
+        if (stopLoss) {
+        orderParams.stopLoss = stopLoss.toString();
+        }
+        
+        if (takeProfit) {
+        orderParams.takeProfit = takeProfit.toString();
+        }
+        
+        return await bybitRequest("/v5/order/create", "POST", orderParams);
+    } catch (error) {
+        console.error("Error in placeOrder:", error);
+        return {
+            retCode: 500,
+            retMsg: error instanceof Error ? error.message : "An unknown error occurred while placing the order.",
+            result: null
+        };
     }
-    
-    if (takeProfit) {
-      orderParams.takeProfit = takeProfit.toString();
-    }
-    
-    return await bybitRequest("/v5/order/create", "POST", orderParams);
 }
 
 export async function getKlines(params: {
