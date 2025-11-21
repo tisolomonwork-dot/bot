@@ -59,30 +59,33 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
 
   if (method === "POST" && body) {
     headers["Content-Type"] = "application/json";
-    options.body = JSON.stringify(body);
+    options.body = params; // Use the same stringified params used for signature
   }
   
   try {
     const response = await fetch(url, options);
 
-    if (!response.ok) {
+    // Handle non-JSON responses gracefully
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
         const text = await response.text();
         const errorMsg = `Bybit API Error for endpoint ${endpoint}: Received non-JSON response. Status: ${response.status} ${text.slice(0, 100)}`;
         console.error(errorMsg);
-        throw new Error(`Bybit API returned status ${response.status}. Check Vercel logs for details.`);
+        // Return a structured error to avoid crashing the client-side service
+        return { retCode: response.status, retMsg: `Bybit API returned non-JSON response. Check server logs.`, result: null, time: Date.now() };
     }
 
     const data: BybitResponse = await response.json();
     
     // The API route handler will now check for non-zero retCode, so we can pass it through.
-    // This allows client components to potentially handle specific Bybit errors if needed.
     return data;
 
   } catch (error: any) {
-    // This catches network errors or JSON parsing errors
+    // This catches network errors or other fetch-related issues
     const errorMsg = `Failed during Bybit request to ${endpoint}: ${error.message}`;
     console.error(errorMsg);
-    throw new Error(errorMsg); // Re-throw to be caught by the API route handler
+    // Re-throw to be caught by the API route handler, but as a structured error
+    return { retCode: 500, retMsg: errorMsg, result: null, time: Date.now() };
   }
 }
 
