@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from 'react';
@@ -201,18 +202,32 @@ export function CandlestickChart() {
 
 
     useEffect(() => {
-        const getEmoji = (price: number, tp: number, sl: number) => {
-            if (price <= sl) return '💀';
-            if (price >= tp) return '💰';
-            
-            const range = tp - sl;
-            const progress = (price - sl) / range;
-            
-            if (progress < 0.1) return '😨';
-            if (progress < 0.3) return '🤔';
-            if (progress < 0.7) return '👀';
-            if (progress < 0.9) return '😎';
-            return '🤑';
+        const getEmoji = (price: number, tp: number, sl: number, side: 'Buy' | 'Sell') => {
+            if (side === 'Buy') {
+                if (price <= sl) return '💀';
+                if (price >= tp) return '💰';
+                
+                const range = tp - sl;
+                const progress = (price - sl) / range;
+                
+                if (progress < 0.1) return '😨';
+                if (progress < 0.3) return '🤔';
+                if (progress < 0.7) return '👀';
+                if (progress < 0.9) return '😎';
+                return '🤑';
+            } else { // Sell side
+                if (price >= sl) return '💀';
+                if (price <= tp) return '💰';
+                
+                const range = sl - tp;
+                const progress = (sl - price) / range;
+                
+                if (progress < 0.1) return '😨';
+                if (progress < 0.3) return '🤔';
+                if (progress < 0.7) return '👀';
+                if (progress < 0.9) return '😎';
+                return '🤑';
+            }
         }
 
         const priceInterval = setInterval(async () => {
@@ -227,8 +242,8 @@ export function CandlestickChart() {
                     close: lastPrice,
                 });
                 
-                if (takeProfit && stopLoss) {
-                    setPriceProximityEmoji(getEmoji(lastPrice, takeProfit, stopLoss));
+                if (takeProfit && stopLoss && position?.side) {
+                    setPriceProximityEmoji(getEmoji(lastPrice, takeProfit, stopLoss, position.side));
                 } else {
                     setPriceProximityEmoji(null);
                 }
@@ -236,7 +251,7 @@ export function CandlestickChart() {
         }, 3000);
 
         return () => clearInterval(priceInterval);
-    }, [takeProfit, stopLoss]);
+    }, [takeProfit, stopLoss, position?.side]);
 
     // Update TP/SL/Entry lines
     useEffect(() => {
@@ -332,3 +347,5 @@ export function CandlestickChart() {
         </Card>
     );
 }
+
+    
