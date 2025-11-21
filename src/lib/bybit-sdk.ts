@@ -34,10 +34,9 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
   let params = "";
   
   if (method === "GET" && body) {
-    const queryParams = new URLSearchParams(body).toString();
-    if(queryParams) {
-      params = queryParams;
-      url += `?${queryParams}`;
+    params = new URLSearchParams(body).toString();
+    if(params) {
+      url += `?${params}`;
     }
   } else if (method === "POST" && body) {
     params = JSON.stringify(body);
@@ -52,10 +51,6 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
     "X-BAPI-RECV-WINDOW": "5000",
   };
 
-  if (method === "POST") {
-    headers["Content-Type"] = "application/json";
-  }
-
   const options: RequestInit = {
     method,
     headers,
@@ -63,6 +58,7 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
   };
 
   if (method === "POST" && body) {
+    headers["Content-Type"] = "application/json";
     options.body = JSON.stringify(body);
   }
   
@@ -78,12 +74,9 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
 
     const data: BybitResponse = await response.json();
     
-    if (data.retCode !== 0) {
-      console.error(`Bybit API Error for endpoint ${endpoint}:`, data.retMsg, 'Params:', body);
-      // Let the caller handle the specific Bybit error message
-      throw new Error(data.retMsg || 'Bybit API request failed with non-zero return code.');
-    }
-    return data.result;
+    // The API route handler will now check for non-zero retCode, so we can pass it through.
+    // This allows client components to potentially handle specific Bybit errors if needed.
+    return data;
 
   } catch (error: any) {
     // This catches network errors or JSON parsing errors
@@ -95,12 +88,14 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
 
 export async function getBalance() {
   const result = await bybitRequest("/v5/account/wallet-balance", "GET", { accountType: "UNIFIED" });
-  return result?.list?.[0] || null;
+  if (result.retCode !== 0) throw new Error(result.retMsg);
+  return result?.result?.list?.[0] || null;
 }
 
 export async function getTickers(params: { category: 'linear' | 'spot', symbol: string }) {
     const result = await bybitRequest('/v5/market/tickers', 'GET', params);
-    return result?.list || [];
+    if (result.retCode !== 0) throw new Error(result.retMsg);
+    return result?.result?.list || [];
 }
 
 export async function getPositions() {
@@ -108,7 +103,8 @@ export async function getPositions() {
     category: "linear",
     settleCoin: "USDT"
   });
-  return result?.list || [];
+  if (result.retCode !== 0) throw new Error(result.retMsg);
+  return result?.result?.list || [];
 }
 
 export async function getOpenOrders() {
@@ -116,7 +112,8 @@ export async function getOpenOrders() {
     category: "linear",
     settleCoin: "USDT",
   });
-  return result?.list || [];
+  if (result.retCode !== 0) throw new Error(result.retMsg);
+  return result?.result?.list || [];
 }
 
 export async function placeOrder(order: any) {
@@ -130,7 +127,8 @@ export async function getKlines(params: {
     limit: number;
 }) {
     const result = await bybitRequest('/v5/market/kline', 'GET', params);
-    return (result?.list || []).map((k: any) => ({
+    if (result.retCode !== 0) throw new Error(result.retMsg);
+    return (result?.result?.list || []).map((k: any) => ({
         date: new Date(parseInt(k[0])).toISOString(),
         open: parseFloat(k[1]),
         high: parseFloat(k[2]),
