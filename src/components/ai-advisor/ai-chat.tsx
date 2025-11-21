@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Bot, User, CornerDownLeft, CircleDashed } from 'lucide-react';
+import { Bot, User, CornerDownLeft, CircleDashed, Sparkles } from 'lucide-react';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
@@ -71,46 +71,47 @@ export function AiChat() {
   };
 
   return (
-    <Card className="flex flex-col h-[60vh] bg-transparent border-0 shadow-none">
-      <CardHeader>
-        <CardTitle>Ask the AI</CardTitle>
-        <CardDescription>Get instant answers to your trading questions.</CardDescription>
+    <Card className="flex flex-col h-full bg-transparent border-0 shadow-none">
+      <CardHeader className="border-b">
+        <CardTitle className="flex items-center gap-2 font-normal">
+            <Sparkles className="h-4 w-4 text-muted-foreground"/>
+            AetherMind Assistant
+        </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden">
-        <ScrollArea className="flex-1 pr-4 -mr-4">
-          <div className="space-y-4">
+      <CardContent className="flex-1 flex flex-col gap-4 overflow-hidden p-4">
+        <ScrollArea className="flex-1 -mx-4 px-4">
+          <div className="space-y-6">
             {messages.map((message, index) => (
               <div
                 key={index}
                 className={cn(
-                  'flex items-start gap-3 rounded-lg p-3',
-                  message.role === 'user' ? '' : 'bg-muted/50'
+                  'flex items-start gap-3',
                 )}
               >
-                <div className={cn("p-1.5 rounded-full", message.role === 'user' ? 'bg-primary/20' : 'bg-primary/20')}>
-                    {message.role === 'user' ? <User className="h-5 w-5 text-primary" /> : <Bot className="h-5 w-5 text-primary" />}
+                <div className={cn("flex-shrink-0 p-1.5 rounded-full border", message.role === 'user' ? 'border-border' : 'border-primary/20')}>
+                    {message.role === 'user' ? <User className="h-4 w-4 text-muted-foreground" /> : <Bot className="h-4 w-4 text-primary" />}
                 </div>
                 <div className="flex-1 pt-1">
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-sm font-light leading-relaxed whitespace-pre-wrap">{message.content}</p>
                 </div>
               </div>
             ))}
              {isAnswering && (
-              <div className="flex items-start gap-3 rounded-lg p-3 bg-muted/50">
-                <div className="p-1.5 rounded-full bg-primary/20">
-                    <Bot className="h-5 w-5 text-primary" />
+              <div className="flex items-start gap-3">
+                 <div className="flex-shrink-0 p-1.5 rounded-full border border-primary/20">
+                    <Bot className="h-4 w-4 text-primary" />
                 </div>
-                <div className="flex-1 pt-1.5">
-                    <CircleDashed className="h-5 w-5 animate-spin text-primary" />
+                <div className="flex-1 pt-2">
+                    <CircleDashed className="h-4 w-4 animate-spin text-primary" />
                 </div>
               </div>
             )}
             {messages.length === 0 && !isAnswering && (
-                <div className="text-center text-sm text-muted-foreground p-8">
-                    <p className="mb-4">No messages yet. Try asking a question, for example:</p>
-                    <div className="flex flex-col sm:flex-row gap-2 justify-center">
-                        {exampleQuestions.map((q) => (
-                            <Button key={q} variant="outline" size="sm" onClick={() => handleAskExample(q)}>
+                <div className="text-center text-xs text-muted-foreground py-8">
+                    <p className="mb-4">Ask me anything about your portfolio or the market.</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 justify-center">
+                        {exampleQuestions.slice(0,3).map((q) => (
+                            <Button key={q} variant="outline" size="sm" className="font-light text-xs h-auto py-1.5" onClick={() => handleAskExample(q)}>
                                 {q}
                             </Button>
                         ))}
@@ -131,7 +132,7 @@ export function AiChat() {
                     <Input
                       {...field}
                       placeholder="e.g., Is ETH likely to break out this week?"
-                      className="pr-12"
+                      className="pr-10 h-9 font-light"
                       disabled={isAnswering}
                     />
                   </FormControl>
@@ -141,6 +142,7 @@ export function AiChat() {
             <Button
               type="submit"
               size="icon"
+              variant="ghost"
               className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
               disabled={isAnswering}
             >
