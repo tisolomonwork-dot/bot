@@ -58,7 +58,7 @@ async function bybitRequest(endpoint: string, method: string = "GET", body?: any
 
   if (method === "POST" && body) {
     headers["Content-Type"] = "application/json";
-    options.body = params;
+    options.body = params; // Use the same stringified params for the body
   }
   
   try {
